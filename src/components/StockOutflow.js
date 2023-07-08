@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef} from 'react';
 import {InventaryManagementContext} from './Context/InventaryManagementProvider';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
@@ -10,6 +10,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { useFormik } from 'formik';
+import { classNames } from 'primereact/utils';
 
 function StockOutflow() {
     const { products, updateProducts, fetchProducts, takePrint} = useContext(InventaryManagementContext);
@@ -19,12 +20,12 @@ function StockOutflow() {
 
     const [orderCompletionStatus,setOrderCompletionStatus]=useState(false);
     const [orderResponse,setOrderResponse]=useState(null);
-    const [selectedWareHouse, setSelectedWareHouse] = useState("");
-    const [selectedProductGroup, setSelectedProductGroup] = useState("");
-    const [selectedProductName, setSelectedProductName] = useState("");
-    const [invoiceNumber, setInvoiceNumber] = useState("");
-    const [soldQuantity, setSoldQuantity] = useState("");
-    const [soldDate, setSoldDate] = useState("");
+    // const [selectedWareHouse, setSelectedWareHouse] = useState("");
+    // const [selectedProductGroup, setSelectedProductGroup] = useState("");
+    // const [selectedProductName, setSelectedProductName] = useState("");
+    // const [invoiceNumber, setInvoiceNumber] = useState("");
+    // const [soldQuantity, setSoldQuantity] = useState("");
+    // const [soldDate, setSoldDate] = useState("");
     // const [errors, setErrors]=useState({wareHouseCode:"",productGroup:"",productName:"",invoiceNumber:"",soldDate:"",soldQuantity:""});
     const warehouses = [...new Set(products.map(product => product.wareHouseCode))].map(wareHouseCode=>{ return {name:wareHouseCode,code:wareHouseCode}});
     const productGroups = [...new Set(products.map(product => product.productGroup))].map(productGroup=>{return {name:productGroup,code:productGroup}});
@@ -58,7 +59,7 @@ function StockOutflow() {
     const formik = useFormik({
         initialValues: {
             selectedwarehouse:"",
-            selectedoproductgroup:"",
+            selectedproductgroup:"",
             selectedproductname:"",
             invoicenumber:"",
             solddate:"",
@@ -85,13 +86,11 @@ function StockOutflow() {
             if (!data.soldquantity) {
                 errors.date = 'Sold quantity is required.';
             }
-            
-
             return errors;
         },
         onSubmit: (data) => {
             if (!formik.errors) {
-                data && show(data);
+                handleStockOutflow(data) && show(data);
                 formik.resetForm();
             }
         }
@@ -102,27 +101,27 @@ function StockOutflow() {
     const getFormErrorMessage = (name) => {
         return isFormFieldInvalid(name) ? <small className="p-error">{formik.errors[name]}</small> : <small className="p-error">&nbsp;</small>;
     };
-    const handleStockOutflow = async (e) => {
-        e.preventDefault();
+    const handleStockOutflow = async (data) => {
+        // e.preventDefault();
         // if(validate()){
         const updatingProductId = products.find(product =>
-            product.wareHouseCode === selectedWareHouse.code &&
-            product.productGroup === selectedProductGroup.code &&
-            product.productItem === selectedProductName.code
+            product.wareHouseCode === data.selectedwarehouse &&
+            product.productGroup === data.selectedproductgroup &&
+            product.productItem === data.selectedproductname
         ).id;
         const outflowTransactionPayload = {
-            wareHouseCode:selectedWareHouse.code,
-            productGroup:selectedProductGroup.code,
-            productItem:selectedProductName.code,
-            invoiceNumber,
+            wareHouseCode:data.selectedwarehouse,
+            productGroup:data.selectedproductgroup ,
+            productItem:data.selectedproductname,
+            invoiceNumber:data.invoicenumber,
             transactionType: "Outflow",
-            dateOfTransaction:new Date(soldDate).toISOString(),
-            transactionQuantity:soldQuantity
+            dateOfTransaction:new Date(data.solddate).toISOString(),
+            transactionQuantity:data.soldquantity
         }
         const outFlowOrderData = await updateProducts(updatingProductId, outflowTransactionPayload);
-        outFlowOrderData["invoiceNumber"]=invoiceNumber;
-        outFlowOrderData["soldQuantity"]=soldQuantity;
-        outFlowOrderData["soldDate"]=soldDate;
+        outFlowOrderData["invoiceNumber"]=data.invoicenumber;
+        outFlowOrderData["soldQuantity"]=data.soldquantity;
+        outFlowOrderData["soldDate"]=data.solddate;
         setOrderResponse([outFlowOrderData]);
         // setErrors({wareHouseCode:"", productGroup:"",productName:"",soldDate:"",soldQuantity:''});
         // }
@@ -173,6 +172,7 @@ function StockOutflow() {
         </>
             :
             <>
+                <Toast ref={toast} />
                 <div class="form-group row m-3 ">
                     <label for="warehousecode" class="col-sm-4 col-form-label">Warehouse Code</label>
                     <div class="col-sm-8">
@@ -235,28 +235,65 @@ function StockOutflow() {
                 <div class="form-group row m-3 ">
                     <label htmlFor="invoicenumber" class="col-sm-4 col-form-label">Invoice Number</label>
                     <div class="col-sm-8">
-                        <InputText id="invoicenumber" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
+                        <InputText
+                        inputId="invoicenumber"
+                        name="invoicenumber"
+                        value={formik.values.invoicenumber}
+                        onValueChange={(e) => {
+                            formik.setFieldValue('invoicenumber', e.value);
+                        }}
+                        useGrouping={false}
+                        pt={{
+                            input: {
+                                root: { autoComplete: 'off' }
+                            }
+                        }}
+                        className={`"w-full md:w-14rem" ${classNames({ 'p-invalid': isFormFieldInvalid('invoicenumber') })})`}
+                        />
                         {getFormErrorMessage('invoicenumber')}
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
-                    <label for="solddate" class="col-sm-4 col-form-label">Sold Date</label>
+                    <label htmlFor="solddate" class="col-sm-4 col-form-label">Sold Date</label>
                     <div class="col-sm-8">
-                        <Calendar value={soldDate} onChange={(e) => setSoldDate(e.value)} dateFormat="dd/mm/yy" showIcon />
+                        <Calendar 
+                        inputId="solddate"
+                        name="solddate"
+                        value={formik.values.solddate}
+                        className={classNames({ 'p-invalid': isFormFieldInvalid('solddate') })}
+                        onChange={(e) => {
+                            formik.setFieldValue('solddate', e.target.value);
+                        }}
+                        dateFormat="dd/mm/yy" 
+                        showIcon />
                         {getFormErrorMessage('solddate')}
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
                     <label for="soldquantity" class="col-sm-4 col-form-label">Sold Quantity</label>
                     <div class="col-sm-8">
-                        <InputNumber id="soldquantity" value={soldQuantity} onValueChange={(e) => setSoldQuantity(e.target.value)} min={0} mode="decimal"/>
+                    <InputNumber
+                        inputId="soldquantity"
+                        name="soldquantity"
+                        value={formik.values.soldquantity}
+                        onValueChange={(e) => {
+                            formik.setFieldValue('soldquantity', e.value);
+                        }}
+                        useGrouping={false}
+                        pt={{
+                            input: {
+                                root: { autoComplete: 'off' }
+                            }
+                        }}
+                        mode='decimal'
+                        />
                         {getFormErrorMessage('soldquantity')}
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
                     <div className="card flex justify-content-center gap-3">
-                        <Button label="Submit" onClick={handleStockOutflow}/>
-                        <Button label="Reset" severity="secondary" onClick={handleReset} />
+                        <Button label="Submit" type="submit" onClick={formik.handleSubmit}/>
+                        <Button label="Reset" type="button" severity="secondary" onClick={handleReset} />
                     </div>
                 </div>
                 </>
