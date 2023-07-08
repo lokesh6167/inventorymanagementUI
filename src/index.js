@@ -1,17 +1,37 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import 'bootstrap/dist/css/bootstrap.css';
+//theme
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+//core
+import "primereact/resources/primereact.min.css";
+
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import InventaryManagementProvider from './components/Context/InventaryManagementProvider';
+import CurrentStocks from './components/CurrentStocks';
+import StockInflow from './components/StockInflow';
+import StockOutflow from './components/StockOutflow';
+import Transactions from './components/Transactions';
+import PageNotFound from './components/PageNotFound';
+import AddNewProduct from './components/AddNewProduct';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <InventaryManagementProvider>
+      <Router>
+        <App />
+        <Routes>
+          <Route path="/" element={<CurrentStocks />} />
+          <Route path="/stockoutflow" element={<StockOutflow />} />
+          <Route path="/stockinflow" element={<StockInflow />} />
+          <Route path="/addnewproduct" element={<AddNewProduct />} />
+          <Route path="/transactions" element={<Transactions />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </Router>
+    </InventaryManagementProvider>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

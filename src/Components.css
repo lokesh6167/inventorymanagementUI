@@ -1,0 +1,43 @@
+.required-field{
+    color: red;
+}
+.current-stocks-container{
+    max-width: 1200px;
+    margin: auto;
+}
+.stock-inflow-container{
+    max-width: 600px;
+    margin: auto;
+}
+.stock-outflow-receipt{
+    max-width: 1400px;
+    margin: auto;
+}
+.stock-outflow-container{
+    max-width: 600px;
+    margin: auto;
+}
+.receipt-headings{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+.add-new-product-container{
+    max-width: 600px;
+    margin: auto;
+}
+.transactions-container{
+    max-width: 1200px;
+    margin: auto;
+}
+.transaction-headers{
+    display: flex;
+    justify-content: space-between;
+}
+.transaction-headers .transactions_filter_and_print_buttons{
+    display: flex;
+    /* align-items: center; */
+}
+.transaction-headers .transactions_filter_and_print_buttons button {
+    margin-right: 10px; /* Add some spacing between the buttons if needed */
+  }
