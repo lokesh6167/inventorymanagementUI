@@ -7,21 +7,20 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
-
+import { MultiSelect } from 'primereact/multiselect';
 
 function Transactions() {
 
     const { transactions, fetchTransactions, takePrint } = useContext(InventaryManagementContext);
     const [filteredTransactions, setFilteredTransactions] = useState(null);
     const [showFilterOptionsDialog, setShowFilterOptionsDialog] = useState(false);
-    const [filterWareHouseCode, setFilterWareHouseCode] = useState("");
+    const [filterWareHouseCode, setFilterWareHouseCode] = useState([]);
     const [filterProductGroup, setFilterProductGroup] = useState("");
     const [filterProductName, setFilterProductName] = useState("");
     const [filterFromDate, setFilterFromDate] = useState(null);
     const [filterTillDate, setFilterTillDate] = useState(null);
     const [filterTransactionType, setFilterTransactionType] = useState(null);
-    const [filteredTransactionsFlag,setFilteredTransactionsFlag] = useState(false);
-    const [position, setPosition] = useState('center');
+    const [filteredTransactionsFlag, setFilteredTransactionsFlag] = useState(false);
 
     const dialogFuncMap = {
         'filterTransactions': setShowFilterOptionsDialog
@@ -30,40 +29,45 @@ function Transactions() {
     const onClick = (name, position) => {
         dialogFuncMap[`${name}`](true);
 
-        if (position) {
-            setPosition(position);
-        }
     }
 
     const onHide = (name) => {
         dialogFuncMap[`${name}`](false);
     }
-    const submitFilterTransactions = (name)=>{
-        const filteredTransactions = transactions.filter((transaction)=>{
+    const submitFilterTransactions = (name) => {
+        const filteredTransactions = transactions.filter((transaction) => {
             const transactionDateParts = transaction && transaction.dateOfTransaction.split('/');
             let formattedTransactionDate = null;
-            if(transactionDateParts[2] && transactionDateParts[1] && transactionDateParts[0]){
-                formattedTransactionDate = new Date(transactionDateParts[2], transactionDateParts[0]-1, transactionDateParts[1]);
+            if (transactionDateParts[2] && transactionDateParts[1] && transactionDateParts[0]) {
+                formattedTransactionDate = new Date(transactionDateParts[2], transactionDateParts[0] - 1, transactionDateParts[1]);
             }
-            if(filterWareHouseCode && filterWareHouseCode.code && transaction.wareHouseCode!=filterWareHouseCode.code){
-                return false;
+            if (filterWareHouseCode) {
+                filterWareHouseCode.forEach(wareHouseCodeFiltered => {
+                    if (wareHouseCodeFiltered.code && transaction.wareHouseCode !== wareHouseCodeFiltered.code) {
+                        return false;
+                    }
+                })
             }
             if (filterProductGroup && filterProductGroup.code && transaction.productGroup !== filterProductGroup.code) {
                 return false;
             }
-            if (filterProductName && filterProductName.code && transaction.productItem !== filterProductName.code) {
-                return false;
+            if (filterProductName) {
+                filterProductName.forEach(productNameFiltered => {
+                    if (productNameFiltered.code && transaction.productName !== productNameFiltered.code) {
+                        return false;
+                    }
+                })
             }
             if (filterTransactionType && filterTransactionType.code && transaction.transactionType !== filterTransactionType.code) {
                 return false;
             }
-            if(filterFromDate && formattedTransactionDate > filterFromDate){
+            if (filterFromDate && formattedTransactionDate > filterFromDate) {
                 return false;
             }
-            if(filterTillDate && formattedTransactionDate < filterTillDate){
+            if (filterTillDate && formattedTransactionDate < filterTillDate) {
                 return false;
             }
-              return true;
+            return true;
         });
         setFilteredTransactions(filteredTransactions);
         setFilteredTransactionsFlag(true);
@@ -92,10 +96,26 @@ function Transactions() {
         { name: "Inflow", code: "Inflow" },
         { name: "Outflow", code: "Outflow" }
     ]
-    const warehouses = [...new Set(transactions.map(transaction => transaction.wareHouseCode))].map(wareHouseCode=>{ return {name:wareHouseCode,code:wareHouseCode}});
-    const productGroups = [...new Set(transactions.map(transaction => transaction.productGroup))].map(productGroup=>{return {name:productGroup,code:productGroup}});
-    const productNames = [...new Set(transactions.map(transaction => transaction.productItem))].map(productItem=>{return {name:productItem,code:productItem}});
-    
+    const matchedProductGroups = (product) => {
+        let flag = false;
+        filterWareHouseCode.forEach(wareHouse => {
+            if (wareHouse.code === product.wareHouseCode)
+                flag = true;
+        });
+        return flag;
+    }
+    const matchedProductNames = (product) => {
+        let flag = false;
+        filterWareHouseCode.forEach(wareHouse => {
+            if (wareHouse.code === product.wareHouseCode && filterProductGroup.code === product.productGroup)
+                flag = true;
+        });
+        return flag;
+    }
+    const warehouses = [...new Set(transactions.map(transaction => transaction.wareHouseCode))].map(wareHouseCode => { return { name: wareHouseCode, code: wareHouseCode } });
+    const productGroups = [...new Set(transactions.filter(matchedProductGroups))].map(transaction => transaction.productGroup).map(productGroup => { return { name: productGroup, code: productGroup } });
+    const productNames = [...new Set(transactions.filter(matchedProductNames).map(transaction => transaction.productItem))].map(productItem => { return { name: productItem, code: productItem } });
+
     transactions.forEach(transaction => {
         transaction.dateOfTransaction = new Intl.DateTimeFormat("en-IS", dateOptions).format(new Date(transaction.dateOfTransaction));
     });
@@ -117,8 +137,8 @@ function Transactions() {
                 <div class="form-group row m-3 ">
                     <label for="warehousecode" class="col-sm-4 col-form-label">Warehouse Code</label>
                     <div class="col-sm-8">
-                        <Dropdown value={filterWareHouseCode} onChange={(e) => setFilterWareHouseCode(e.value)} options={warehouses} optionLabel="name"
-                            placeholder="Select a Warehouse" className="w-full md:w-14rem" />
+                        <MultiSelect value={filterWareHouseCode} onChange={(e) => setFilterWareHouseCode(e.value)} options={warehouses} optionLabel="name" display="chip"
+                            placeholder="Select a Warehouse" maxSelectedLabels={3} className="w-full md:w-14rem" />
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
@@ -131,8 +151,8 @@ function Transactions() {
                 <div class="form-group row m-3 ">
                     <label for="productName" class="col-sm-4 col-form-label">Product Name</label>
                     <div class="col-sm-8">
-                        <Dropdown value={filterProductName} onChange={(e) => setFilterProductName(e.value)} options={productNames} optionLabel="name"
-                            placeholder="Select a Product Name" />
+                        <MultiSelect value={filterProductName} onChange={(e) => setFilterProductName(e.value)} options={productNames} optionLabel="name" display="chip"
+                            placeholder="Select a Product Name" maxSelectedLabels={3} className="w-full md:w-14rem" />
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
@@ -158,7 +178,7 @@ function Transactions() {
             {filteredTransactionsFlag && <h4>Filtered Transactions : </h4>}
             <Divider />
             <div className="card">
-                <DataTable value={filteredTransactionsFlag?filteredTransactions:transactions} tableStyle={{ minWidth: '50rem' }}>
+                <DataTable value={filteredTransactionsFlag ? filteredTransactions : transactions} tableStyle={{ minWidth: '50rem' }}>
                     <Column field="id" header="Id"></Column>
                     <Column field="wareHouseCode" header="WareHouse Code"></Column>
                     <Column field="productGroup" header="Product Group"></Column>

@@ -1,6 +1,10 @@
 .required-field{
     color: red;
 }
+.bold-underline{
+    text-decoration: underline;
+    font-weight: bold;
+}
 .current-stocks-container{
     max-width: 1200px;
     margin: auto;
@@ -9,12 +13,20 @@
     max-width: 600px;
     margin: auto;
 }
+.stock-inflow-transaction-completed-container{
+    max-width: 900px;
+    margin: auto;
+}
 .stock-outflow-receipt{
     max-width: 1400px;
     margin: auto;
 }
 .stock-outflow-container{
     max-width: 600px;
+    margin: auto;
+}
+.stock-outflow-transaction-completed-container{
+    max-width: 900px;
     margin: auto;
 }
 .receipt-headings{
@@ -41,3 +53,27 @@
 .transaction-headers .transactions_filter_and_print_buttons button {
     margin-right: 10px; /* Add some spacing between the buttons if needed */
   }
+
+  /* Printing styles */
+  @media print {
+    @page {
+        size: landscape;
+      }
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  
+    /* Hide unnecessary elements */
+    footer, nav {
+      display: none;
+    }
+  
+    /* Expand content to fill the printable area */
+    main {
+      width: 100vw;
+      height: 100vh;
+      overflow: auto;
+    }
+  }
+  
