@@ -5,17 +5,17 @@ export const InventaryManagementContext = createContext();
 
 function InventaryManagementProvider({ children }) {
     const [products, setProducts] = useState([]);
-    const [transactions,setTransactions]=useState([]);
+    const [transactions, setTransactions] = useState([]);
 
     const fetchProducts = async () => {
         const response = await fetch(`${BASE_URL}getProducts`);
         const productsData = await response.json();
         setProducts(productsData);
     }
-    const addProducts=async (product)=>{
-        const response = await fetch(`${BASE_URL}addNewProducts`,{
-            method:"POST",
-            body:JSON.stringify(product),
+    const addProducts = async (product) => {
+        const response = await fetch(`${BASE_URL}addNewProducts`, {
+            method: "POST",
+            body: JSON.stringify(product),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             }
@@ -25,12 +25,12 @@ function InventaryManagementProvider({ children }) {
         return addProductData;
         // need to check api success scenario
     }
-    const updateProducts = async (id,transaction)=>{
-        const updateURL= new URL(`${BASE_URL}updateProducts`);
-        updateURL.searchParams.append("id",id);
-        const response = await fetch(updateURL,{
-            method:"PUT",
-            body:JSON.stringify(transaction),
+    const updateProducts = async (id, transaction) => {
+        const updateURL = new URL(`${BASE_URL}updateProducts`);
+        updateURL.searchParams.append("id", id);
+        const response = await fetch(updateURL, {
+            method: "PUT",
+            body: JSON.stringify(transaction),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             }
@@ -39,17 +39,17 @@ function InventaryManagementProvider({ children }) {
         console.log(updateProductData);
         return updateProductData;
     }
-    const fetchTransactions=async ()=>{
+    const fetchTransactions = async () => {
         const response = await fetch(`${BASE_URL}getTransactions`);
         const transactionsData = await response.json();
         setTransactions(transactionsData);
     }
-    const takePrint=()=>{
+    const takePrint = () => {
         console.log("Print screen opened.");
         window.print();
     }
     return (
-        <InventaryManagementContext.Provider value={{products,transactions,fetchProducts,addProducts,updateProducts,fetchTransactions,takePrint}}>
+        <InventaryManagementContext.Provider value={{ products, transactions, fetchProducts, addProducts, updateProducts, fetchTransactions, takePrint }}>
             {children}
         </InventaryManagementContext.Provider>
     );

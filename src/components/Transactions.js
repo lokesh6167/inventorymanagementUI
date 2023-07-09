@@ -86,12 +86,6 @@ function Transactions() {
         fetchTransactions();
     }, []);
 
-    const dateOptions = {
-        month: "2-digit",
-        day: "2-digit",
-        year: "numeric",
-        timeZone: "Asia/Kolkata"
-    };
     const transactionTypes = [
         { name: "Inflow", code: "Inflow" },
         { name: "Outflow", code: "Outflow" }
@@ -117,7 +111,7 @@ function Transactions() {
     const productNames = [...new Set(transactions.filter(matchedProductNames).map(transaction => transaction.productItem))].map(productItem => { return { name: productItem, code: productItem } });
 
     transactions.forEach(transaction => {
-        transaction.dateOfTransaction = new Intl.DateTimeFormat("en-IS", dateOptions).format(new Date(transaction.dateOfTransaction));
+        transaction.dateOfTransaction = new Date(transaction.dateOfTransaction).toLocaleDateString();
     });
 
     return (
@@ -138,40 +132,40 @@ function Transactions() {
                     <label for="warehousecode" class="col-sm-4 col-form-label">Warehouse Code</label>
                     <div class="col-sm-8">
                         <MultiSelect value={filterWareHouseCode} onChange={(e) => setFilterWareHouseCode(e.value)} options={warehouses} optionLabel="name" display="chip"
-                            placeholder="Select a Warehouse" maxSelectedLabels={3} className="w-full md:w-14rem" />
+                            placeholder="Select a Warehouse" maxSelectedLabels={3} className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
                     <label for="productGroup" class="col-sm-4 col-form-label">Product Group</label>
                     <div class="col-sm-8">
                         <Dropdown value={filterProductGroup} onChange={(e) => setFilterProductGroup(e.value)} options={productGroups} optionLabel="name"
-                            placeholder="Select a Product Group" className="w-full md:w-14rem" />
+                            placeholder="Select a Product Group" className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
                     <label for="productName" class="col-sm-4 col-form-label">Product Name</label>
                     <div class="col-sm-8">
                         <MultiSelect value={filterProductName} onChange={(e) => setFilterProductName(e.value)} options={productNames} optionLabel="name" display="chip"
-                            placeholder="Select a Product Name" maxSelectedLabels={3} className="w-full md:w-14rem" />
+                            placeholder="Select a Product Name" maxSelectedLabels={3} className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
                     <label for="transactiontype" class="col-sm-4 col-form-label">Transaction Type</label>
                     <div class="col-sm-8">
                         <Dropdown value={filterTransactionType} onChange={(e) => setFilterTransactionType(e.value)} options={transactionTypes} optionLabel="name"
-                            placeholder="Select a Transaction Type" />
+                            placeholder="Select a Transaction Type" className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
                     <label for="filterfromdate" class="col-sm-4 col-form-label">From Date</label>
                     <div class="col-sm-8">
-                        <Calendar id="filterfromdate" value={filterFromDate} onChange={(e) => setFilterFromDate(e.value)} dateFormat="dd/mm/yy" showIcon />
+                        <Calendar id="filterfromdate" value={filterFromDate} onChange={(e) => setFilterFromDate(e.value)} dateFormat="dd/mm/yy" showIcon className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
                     <label for="filtertilldate" class="col-sm-4 col-form-label">Till Date</label>
                     <div class="col-sm-8">
-                        <Calendar id="filtertilldate" value={filterTillDate} onChange={(e) => setFilterTillDate(e.value)} dateFormat="dd/mm/yy" showIcon />
+                        <Calendar id="filtertilldate" value={filterTillDate} onChange={(e) => setFilterTillDate(e.value)} dateFormat="dd/mm/yy" showIcon className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
             </Dialog>

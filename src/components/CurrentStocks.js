@@ -104,21 +104,21 @@ function CurrentStocks() {
                     <label for="warehousecode" class="col-sm-4 col-form-label">Warehouse Code</label>
                     <div class="col-sm-8">
                         <MultiSelect value={filterWareHouseCode} onChange={(e) => setFilterWareHouseCode(e.value)} options={warehouses} optionLabel="name" display="chip"
-                            placeholder="Select a Warehouse" maxSelectedLabels={3} className="w-full md:w-14rem" />
+                            placeholder="Select a Warehouse" maxSelectedLabels={3} className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
                     <label for="productGroup" class="col-sm-4 col-form-label">Product Group</label>
                     <div class="col-sm-8">
                         <Dropdown value={filterProductGroup} onChange={(e) => setFilterProductGroup(e.value)} options={productGroups} optionLabel="name"
-                            placeholder="Select a Product Group" className="w-full md:w-14rem" />
+                            placeholder="Select a Product Group" className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
                 <div class="form-group row m-3 ">
                     <label for="productName" class="col-sm-4 col-form-label">Product Name</label>
                     <div class="col-sm-8">
                         <MultiSelect value={filterProductName} onChange={(e) => setFilterProductName(e.value)} options={productNames} optionLabel="name" display="chip"
-                            placeholder="Select a Product Name" maxSelectedLabels={3} className="w-full md:w-14rem" />
+                            placeholder="Select a Product Name" maxSelectedLabels={3} className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
             </Dialog>

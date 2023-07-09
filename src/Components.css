@@ -1,3 +1,4 @@
+/* Utility classes */
 .required-field{
     color: red;
 }
@@ -5,10 +6,17 @@
     text-decoration: underline;
     font-weight: bold;
 }
+.no-border{
+    border:none !important;
+}
 .current-stocks-container{
     max-width: 1200px;
     margin: auto;
 }
+.form-field-generic-size{
+    width:19em !important;
+}
+
 .stock-inflow-container{
     max-width: 600px;
     margin: auto;

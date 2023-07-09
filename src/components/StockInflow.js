@@ -174,7 +174,7 @@ function StockInflow() {
             <label for="warehousecode" class="col-sm-4 col-form-label">Warehouse Code<span className="required-field">*</span></label>
             <div class="col-sm-8">
               <Dropdown value={selectedWareHouse} onChange={(e) => setSelectedWareHouse(e.value)} options={warehouses} optionLabel="name"
-                placeholder="Select a Warehouse" className="w-full md:w-14rem" />
+                placeholder="Select a Warehouse" className="w-full md:w-14rem form-field-generic-size" />
               {errors.wareHouseCode && <small className="p-error">{errors.wareHouseCode}.</small>}
             </div>
           </div>
@@ -182,7 +182,7 @@ function StockInflow() {
             <label for="productGroup" class="col-sm-4 col-form-label">Product Group<span className="required-field">*</span></label>
             <div class="col-sm-8">
               <Dropdown value={selectedProductGroup} onChange={(e) => setSelectedProductGroup(e.value)} options={productGroups} optionLabel="name"
-                placeholder="Select a Product Group" className="w-full md:w-14rem" />
+                placeholder="Select a Product Group" className="w-full md:w-14rem form-field-generic-size" />
               {errors.productGroup && <small className="p-error">{errors.productGroup}.</small>}
             </div>
           </div>
@@ -190,33 +190,33 @@ function StockInflow() {
             <label for="productName" class="col-sm-4 col-form-label">Product Name<span className="required-field">*</span></label>
             <div class="col-sm-8">
               <Dropdown value={selectedProductName} onChange={(e) => setSelectedProductName(e.value)} options={productNames} optionLabel="name"
-                placeholder="Select a Product Name" />
+                placeholder="Select a Product Name" className="w-full md:w-14rem form-field-generic-size" />
               {errors.productName && <small className="p-error">{errors.productName}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">
             <label for="invoicenumber" class="col-sm-4 col-form-label">Invoice Number<span className="required-field">*</span></label>
             <div class="col-sm-8">
-              <InputText id="invoicenumber" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
+              <InputText id="invoicenumber" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} className="w-full md:w-14rem form-field-generic-size" />
               {errors.invoiceNumber && <small className="p-error">{errors.invoiceNumber}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">
             <label for="purchaseddate" class="col-sm-4 col-form-label">Purchased Date<span className="required-field">*</span></label>
             <div class="col-sm-8">
-              <Calendar value={purchasedDate} onChange={(e) => setPurchasedDate(e.value)} dateFormat="dd/mm/yy" showIcon />
+              <Calendar value={purchasedDate} onChange={(e) => setPurchasedDate(e.value)} dateFormat="dd/mm/yy" showIcon className="w-full md:w-14rem form-field-generic-size" />
               {errors.purchasedDate && <small className="p-error">{errors.purchasedDate}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">
             <label for="purchasedquantity" class="col-sm-4 col-form-label">Purchased Quantity<span className="required-field">*</span></label>
             <div class="col-sm-8">
-              <InputNumber id="purchasedquantity" value={purchasedQuantity} onValueChange={(e) => setPurchasedQuantity(e.target.value)} min={0} mode='decimal' />
+              <InputNumber id="purchasedquantity" value={purchasedQuantity} onValueChange={(e) => setPurchasedQuantity(e.target.value)} min={0} mode='decimal' className="w-full md:w-14rem form-field-generic-size" />
               {errors.purchasedQuantity && <small className="p-error">{errors.purchasedQuantity}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">
-            <div className="card flex justify-content-center gap-3">
+            <div className="card flex justify-content-center gap-3 no-border">
               <Button label="Submit" onClick={handleStockInflow} />
               <Button label="Reset" severity="secondary" onClick={handleReset} />
             </div>
