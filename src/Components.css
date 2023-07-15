@@ -3,8 +3,14 @@
     color: red;
 }
 .bold-underline{
-    text-decoration: underline;
+    /* text-decoration: underline; */
     font-weight: bold;
+}
+.display-block{
+    display: block;
+}
+.orange-font, .orange-font:hover, .orange-font:focus{
+    color: orange !important;
 }
 .no-border{
     border:none !important;

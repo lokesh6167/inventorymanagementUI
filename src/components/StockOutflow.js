@@ -7,6 +7,7 @@ import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 import Table from 'react-bootstrap/Table';
+import moment from 'moment';
 
 function StockOutflow() {
     const { products, updateProducts, fetchProducts, takePrint } = useContext(InventaryManagementContext);
@@ -81,7 +82,7 @@ function StockOutflow() {
                 productItem: selectedProductName.code,
                 invoiceNumber,
                 transactionType: "Outflow",
-                dateOfTransaction: new Date(soldDate).toISOString(),
+                dateOfTransaction: soldDate,
                 transactionQuantity: soldQuantity
             }
             const outFlowOrderData = await updateProducts(updatingProductId, outflowTransactionPayload);
@@ -149,7 +150,7 @@ function StockOutflow() {
                                         </tr>
                                         <tr>
                                             <td>Sold Date</td>
-                                            <td>{new Date(orderResponse.soldDate).toLocaleDateString()}</td>
+                                            <td>{moment(orderResponse.soldDate).format("DD-MMM-YYYY")}</td>
                                         </tr>
                                         <tr>
                                             <td>Sold Quantity</td>
@@ -177,7 +178,7 @@ function StockOutflow() {
                         <div class="col-sm-8">
                             <Dropdown value={selectedWareHouse} onChange={(e) => setSelectedWareHouse(e.value)} options={warehouses} optionLabel="name"
                                 placeholder="Select a Warehouse" className="w-full md:w-14rem form-field-generic-size" />
-                            {errors.wareHouseCode && <small className="p-error">{errors.wareHouseCode}.</small>}
+                            {errors.wareHouseCode && <small className="p-error display-block">{errors.wareHouseCode}.</small>}
                         </div>
                     </div>
                     <div class="form-group row m-3 ">
@@ -185,7 +186,7 @@ function StockOutflow() {
                         <div class="col-sm-8">
                             <Dropdown value={selectedProductGroup} onChange={(e) => setSelectedProductGroup(e.value)} options={productGroups} optionLabel="name"
                                 placeholder="Select a Product Group" className="w-full md:w-14rem form-field-generic-size" />
-                            {errors.productGroup && <small className="p-error">{errors.productGroup}.</small>}
+                            {errors.productGroup && <small className="p-error display-block">{errors.productGroup}.</small>}
                         </div>
                     </div>
                     <div class="form-group row m-3 ">
@@ -193,28 +194,28 @@ function StockOutflow() {
                         <div class="col-sm-8">
                             <Dropdown value={selectedProductName} onChange={(e) => setSelectedProductName(e.value)} options={productNames} optionLabel="name"
                                 placeholder="Select a Product Name" className="w-full md:w-14rem form-field-generic-size" />
-                            {errors.productName && <small className="p-error">{errors.productName}.</small>}
+                            {errors.productName && <small className="p-error display-block">{errors.productName}.</small>}
                         </div>
                     </div>
                     <div class="form-group row m-3 ">
                         <label for="invoicenumber" class="col-sm-4 col-form-label">Invoice Number<span className="required-field">*</span></label>
                         <div class="col-sm-8">
                             <InputText id="invoicenumber" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} className="w-full md:w-14rem form-field-generic-size" />
-                            {errors.invoiceNumber && <small className="p-error">{errors.invoiceNumber}.</small>}
+                            {errors.invoiceNumber && <small className="p-error display-block">{errors.invoiceNumber}.</small>}
                         </div>
                     </div>
                     <div class="form-group row m-3 ">
                         <label for="solddate" class="col-sm-4 col-form-label">Sold Date<span className="required-field">*</span></label>
                         <div class="col-sm-8">
                             <Calendar value={soldDate} onChange={(e) => setSoldDate(e.value)} dateFormat="dd/mm/yy" showIcon className="w-full md:w-14rem form-field-generic-size" />
-                            {errors.soldDate && <small className="p-error">{errors.soldDate}.</small>}
+                            {errors.soldDate && <small className="p-error display-block">{errors.soldDate}.</small>}
                         </div>
                     </div>
                     <div class="form-group row m-3 ">
                         <label for="soldquantity" class="col-sm-4 col-form-label">Sold Quantity<span className="required-field">*</span></label>
                         <div class="col-sm-8">
                             <InputNumber id="soldquantity" value={soldQuantity} onValueChange={(e) => setSoldQuantity(e.target.value)} min={0} mode="decimal" className="w-full md:w-14rem form-field-generic-size" />
-                            {errors.soldQuantity && <small className="p-error">{errors.soldQuantity}.</small>}
+                            {errors.soldQuantity && <small className="p-error display-block">{errors.soldQuantity}.</small>}
                         </div>
                     </div>
                     <div class="form-group row m-3 ">

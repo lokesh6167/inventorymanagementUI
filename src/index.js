@@ -16,6 +16,7 @@ import StockOutflow from './components/StockOutflow';
 import Transactions from './components/Transactions';
 import PageNotFound from './components/PageNotFound';
 import AddNewProduct from './components/AddNewProduct';
+import ServerDownMessage from './components/ServerDownMessage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -29,6 +30,7 @@ root.render(
           <Route path="/stockinflow" element={<StockInflow />} />
           <Route path="/addnewproduct" element={<AddNewProduct />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/serverdown" element={<ServerDownMessage />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </Router>

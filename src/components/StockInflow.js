@@ -7,6 +7,7 @@ import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 import Table from 'react-bootstrap/Table';
+import moment from 'moment';
 
 
 function StockInflow() {
@@ -82,7 +83,7 @@ function StockInflow() {
         productItem: selectedProductName.code,
         invoiceNumber,
         transactionType: "Inflow",
-        dateOfTransaction: new Date(purchasedDate).toISOString(),
+        dateOfTransaction: purchasedDate,
         transactionQuantity: purchasedQuantity
       }
       const inFlowOrderData = await updateProducts(updatingProductId, inflowTransactionPayload);
@@ -147,7 +148,7 @@ function StockInflow() {
                     </tr>
                     <tr>
                       <td>Sold Date</td>
-                      <td>{new Date(orderResponse.purchasedDate).toLocaleDateString()}</td>
+                      <td>{moment(orderResponse.purchasedDate).format("DD-MMM-YYYY")}</td>
                     </tr>
                     <tr>
                       <td>Sold Quantity</td>
@@ -175,7 +176,7 @@ function StockInflow() {
             <div class="col-sm-8">
               <Dropdown value={selectedWareHouse} onChange={(e) => setSelectedWareHouse(e.value)} options={warehouses} optionLabel="name"
                 placeholder="Select a Warehouse" className="w-full md:w-14rem form-field-generic-size" />
-              {errors.wareHouseCode && <small className="p-error">{errors.wareHouseCode}.</small>}
+              {errors.wareHouseCode && <small className="p-error display-block">{errors.wareHouseCode}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">
@@ -183,7 +184,7 @@ function StockInflow() {
             <div class="col-sm-8">
               <Dropdown value={selectedProductGroup} onChange={(e) => setSelectedProductGroup(e.value)} options={productGroups} optionLabel="name"
                 placeholder="Select a Product Group" className="w-full md:w-14rem form-field-generic-size" />
-              {errors.productGroup && <small className="p-error">{errors.productGroup}.</small>}
+              {errors.productGroup && <small className="p-error display-block">{errors.productGroup}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">
@@ -191,28 +192,28 @@ function StockInflow() {
             <div class="col-sm-8">
               <Dropdown value={selectedProductName} onChange={(e) => setSelectedProductName(e.value)} options={productNames} optionLabel="name"
                 placeholder="Select a Product Name" className="w-full md:w-14rem form-field-generic-size" />
-              {errors.productName && <small className="p-error">{errors.productName}.</small>}
+              {errors.productName && <small className="p-error display-block">{errors.productName}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">
             <label for="invoicenumber" class="col-sm-4 col-form-label">Invoice Number<span className="required-field">*</span></label>
             <div class="col-sm-8">
               <InputText id="invoicenumber" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} className="w-full md:w-14rem form-field-generic-size" />
-              {errors.invoiceNumber && <small className="p-error">{errors.invoiceNumber}.</small>}
+              {errors.invoiceNumber && <small className="p-error display-block">{errors.invoiceNumber}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">
             <label for="purchaseddate" class="col-sm-4 col-form-label">Purchased Date<span className="required-field">*</span></label>
             <div class="col-sm-8">
               <Calendar value={purchasedDate} onChange={(e) => setPurchasedDate(e.value)} dateFormat="dd/mm/yy" showIcon className="w-full md:w-14rem form-field-generic-size" />
-              {errors.purchasedDate && <small className="p-error">{errors.purchasedDate}.</small>}
+              {errors.purchasedDate && <small className="p-error display-block">{errors.purchasedDate}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">
             <label for="purchasedquantity" class="col-sm-4 col-form-label">Purchased Quantity<span className="required-field">*</span></label>
             <div class="col-sm-8">
               <InputNumber id="purchasedquantity" value={purchasedQuantity} onValueChange={(e) => setPurchasedQuantity(e.target.value)} min={0} mode='decimal' className="w-full md:w-14rem form-field-generic-size" />
-              {errors.purchasedQuantity && <small className="p-error">{errors.purchasedQuantity}.</small>}
+              {errors.purchasedQuantity && <small className="p-error display-block display-block">{errors.purchasedQuantity}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">

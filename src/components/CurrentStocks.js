@@ -57,9 +57,16 @@ function CurrentStocks() {
         setFilteredStocksFlag(true);
         onHide(name);
     }
+    const resetFilter = (name) => {
+        setFilterWareHouseCode([]);
+        setFilterProductGroup("");
+        setFilterProductName([]);
+        setFilteredStocksFlag(false);
+    }
     const renderFooter = (name) => {
         return (
             <div>
+                <Button label="Reset" icon="pi pi-times" onClick={() => resetFilter(name)} className="p-button-text" />
                 <Button label="Cancel" icon="pi pi-times" onClick={() => onHide(name)} className="p-button-text" />
                 <Button label="Submit" icon="pi pi-check" onClick={() => submitFilterStocks(name)} autoFocus />
             </div>
@@ -89,7 +96,7 @@ function CurrentStocks() {
     return (
         <div className='current-stocks-container'>
             <div className='transaction-headers'>
-                <p class="h2">Current Stocks :</p>
+                <p class="h2">Current Stocks</p>
                 <div className='transactions_filter_and_print_buttons'>
                     <div className="p-jc-center p-mt-5">
                         <Button label="Filter Stocks" icon="pi pi-external-link" onClick={() => onClick('filterStocks')} />

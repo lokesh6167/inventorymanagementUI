@@ -118,28 +118,28 @@ function AddNewProduct() {
                         <label for="warehousecode" class="col-sm-4 col-form-label">Warehouse Code<span className="required-field">*</span></label>
                         <div class="col-sm-8">
                             <InputText id="warehousecode" value={wareHouseCode} onChange={(e) => setWareHouseCode(e.target.value)} className="w-full md:w-14rem form-field-generic-size" />
-                            {errors.wareHouseCode && <small className="p-error">{errors.wareHouseCode}.</small>}
+                            {errors.wareHouseCode && <small className="p-error display-block">{errors.wareHouseCode}.</small>}
                         </div>
                     </div>
                     <div class="form-group row m-3 ">
                         <label for="productGroup" class="col-sm-4 col-form-label">Product Group<span className="required-field">*</span></label>
                         <div class="col-sm-8">
                             <InputText id="productGroup" value={productGroup} onChange={(e) => setProductGroup(e.target.value)} className="w-full md:w-14rem form-field-generic-size" />
-                            {errors.productGroup && <small className="p-error">{errors.productGroup}.</small>}
+                            {errors.productGroup && <small className="p-error display-block">{errors.productGroup}.</small>}
                         </div>
                     </div>
                     <div class="form-group row m-3 ">
                         <label for="productName" class="col-sm-4 col-form-label">Product Name<span className="required-field">*</span></label>
                         <div class="col-sm-8">
                             <InputText id="productName" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full md:w-14rem form-field-generic-size" />
-                            {errors.productName && <small className="p-error">{errors.productName}.</small>}
+                            {errors.productName && <small className="p-error display-block">{errors.productName}.</small>}
                         </div>
                     </div>
                     <div class="form-group row m-3 ">
                         <label for="openingStockQuantity" class="col-sm-4 col-form-label">Opening Stock Quantity<span className="required-field">*</span></label>
                         <div class="col-sm-8">
                             <InputNumber id="openingStockQuantity" value={openingStockQuantity} onValueChange={(e) => setOpeningStockQuantity(e.target.value)} min={0} mode='decimal' className="w-full md:w-14rem form-field-generic-size" />
-                            {errors.openingStockQuantity && <small className="p-error">{errors.openingStockQuantity}.</small>}
+                            {errors.openingStockQuantity && <small className="p-error display-block">{errors.openingStockQuantity}.</small>}
                         </div>
                     </div>
                     <div class="form-group row m-3 ">

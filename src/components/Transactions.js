@@ -8,6 +8,7 @@ import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { MultiSelect } from 'primereact/multiselect';
+import moment from 'moment';
 
 function Transactions() {
 
@@ -16,7 +17,7 @@ function Transactions() {
     const [showFilterOptionsDialog, setShowFilterOptionsDialog] = useState(false);
     const [filterWareHouseCode, setFilterWareHouseCode] = useState([]);
     const [filterProductGroup, setFilterProductGroup] = useState("");
-    const [filterProductName, setFilterProductName] = useState("");
+    const [filterProductName, setFilterProductName] = useState([]);
     const [filterFromDate, setFilterFromDate] = useState(null);
     const [filterTillDate, setFilterTillDate] = useState(null);
     const [filterTransactionType, setFilterTransactionType] = useState(null);
@@ -35,47 +36,51 @@ function Transactions() {
         dialogFuncMap[`${name}`](false);
     }
     const submitFilterTransactions = (name) => {
+        const filterFromDateObj = new Date(filterFromDate);
+        const filterTillDateObj = new Date(filterTillDate);
         const filteredTransactions = transactions.filter((transaction) => {
-            const transactionDateParts = transaction && transaction.dateOfTransaction.split('/');
-            let formattedTransactionDate = null;
-            if (transactionDateParts[2] && transactionDateParts[1] && transactionDateParts[0]) {
-                formattedTransactionDate = new Date(transactionDateParts[2], transactionDateParts[0] - 1, transactionDateParts[1]);
-            }
-            if (filterWareHouseCode) {
-                filterWareHouseCode.forEach(wareHouseCodeFiltered => {
-                    if (wareHouseCodeFiltered.code && transaction.wareHouseCode !== wareHouseCodeFiltered.code) {
-                        return false;
-                    }
-                })
+            const formattedTransactionDate = new Date(transaction.dateOfTransaction);
+
+            if (filterWareHouseCode && !filterWareHouseCode.every(wareHouseCodeFiltered => transaction.wareHouseCode === wareHouseCodeFiltered.code)) {
+                return false;
             }
             if (filterProductGroup && filterProductGroup.code && transaction.productGroup !== filterProductGroup.code) {
                 return false;
             }
-            if (filterProductName) {
-                filterProductName.forEach(productNameFiltered => {
-                    if (productNameFiltered.code && transaction.productName !== productNameFiltered.code) {
-                        return false;
-                    }
-                })
+            if (filterProductName && !filterProductName.every(productNameFiltered => transaction.productName === productNameFiltered.code)) {
+                return false;
             }
             if (filterTransactionType && filterTransactionType.code && transaction.transactionType !== filterTransactionType.code) {
                 return false;
             }
-            if (filterFromDate && formattedTransactionDate > filterFromDate) {
+            if (filterFromDate && formattedTransactionDate < filterFromDateObj) {
                 return false;
             }
-            if (filterTillDate && formattedTransactionDate < filterTillDate) {
+            if (filterTillDate && formattedTransactionDate > filterTillDateObj) {
                 return false;
             }
             return true;
         });
+
         setFilteredTransactions(filteredTransactions);
         setFilteredTransactionsFlag(true);
         onHide(name);
+    };
+
+
+    const resetFilter = (name) => {
+        setFilterWareHouseCode([]);
+        setFilterProductGroup("");
+        setFilterProductName([]);
+        setFilterFromDate(null);
+        setFilterTillDate(null);
+        setFilterTransactionType(null);
+        setFilteredTransactionsFlag(false);
     }
     const renderFooter = (name) => {
         return (
             <div>
+                <Button label="Reset" icon="pi pi-times" onClick={() => resetFilter(name)} className="p-button-text" />
                 <Button label="Cancel" icon="pi pi-times" onClick={() => onHide(name)} className="p-button-text" />
                 <Button label="Submit" icon="pi pi-check" onClick={() => submitFilterTransactions(name)} autoFocus />
             </div>
@@ -110,9 +115,11 @@ function Transactions() {
     const productGroups = [...new Set(transactions.filter(matchedProductGroups))].map(transaction => transaction.productGroup).map(productGroup => { return { name: productGroup, code: productGroup } });
     const productNames = [...new Set(transactions.filter(matchedProductNames).map(transaction => transaction.productItem))].map(productItem => { return { name: productItem, code: productItem } });
 
-    transactions.forEach(transaction => {
-        transaction.dateOfTransaction = new Date(transaction.dateOfTransaction).toLocaleDateString();
-    });
+    const dateFormat = (rowData) => {
+        const originalDate = rowData.dateOfTransaction;
+        const formattedDate = moment(originalDate).format('DD-MMM-YYYY');
+        return <span>{formattedDate}</span>;
+    };
 
     return (
         <div className='transactions-container'>
@@ -179,7 +186,7 @@ function Transactions() {
                     <Column field="productItem" header="Product Name"></Column>
                     <Column field="invoiceNumber" header="Invoice Number"></Column>
                     <Column field="transactionType" header="Transaction Type"></Column>
-                    <Column field="dateOfTransaction" header="Date of Transaction"></Column>
+                    <Column field="dateOfTransaction" header="Date of Transaction" body={dateFormat}></Column>
                     <Column field="transactionQuantity" header="Transaction Quantity"></Column>
                 </DataTable>
             </div>
