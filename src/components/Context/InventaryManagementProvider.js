@@ -1,5 +1,5 @@
 import React, { useState, createContext } from 'react';
-import { BASE_URL } from '../Constants';
+import { BASE_LOCAL_URL, BASE_PROD_URL } from '../Constants';
 
 export const InventaryManagementContext = createContext();
 
@@ -10,7 +10,7 @@ function InventaryManagementProvider({ children }) {
 
     const fetchProducts = async () => {
         try {
-            const response = await fetch(`${BASE_URL}getProducts`);
+            const response = await fetch(`${BASE_PROD_URL}getProducts`);
             const productsData = await response.json();
             setProducts(productsData);
         } catch (error) {
@@ -20,7 +20,7 @@ function InventaryManagementProvider({ children }) {
 
     const addProducts = async (product) => {
         try {
-            const response = await fetch(`${BASE_URL}addNewProducts`, {
+            const response = await fetch(`${BASE_PROD_URL}addNewProducts`, {
                 method: "POST",
                 body: JSON.stringify(product),
                 headers: {
@@ -37,7 +37,7 @@ function InventaryManagementProvider({ children }) {
     }
     const updateProducts = async (id, transaction) => {
         try {
-            const updateURL = new URL(`${BASE_URL}updateProducts`);
+            const updateURL = new URL(`${BASE_PROD_URL}updateProducts`);
             updateURL.searchParams.append("id", id);
             const response = await fetch(updateURL, {
                 method: "PUT",
@@ -55,7 +55,7 @@ function InventaryManagementProvider({ children }) {
     }
     const fetchTransactions = async () => {
         try {
-            const response = await fetch(`${BASE_URL}getTransactions`);
+            const response = await fetch(`${BASE_PROD_URL}getTransactions`);
             const transactionsData = await response.json();
             setTransactions(transactionsData);
         } catch (error) {

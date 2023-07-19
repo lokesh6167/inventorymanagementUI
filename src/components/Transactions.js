@@ -8,11 +8,12 @@ import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { MultiSelect } from 'primereact/multiselect';
+import ServerDownMessage from './ServerDownMessage';
 import moment from 'moment';
 
 function Transactions() {
 
-    const { transactions, fetchTransactions, takePrint } = useContext(InventaryManagementContext);
+    const { transactions, fetchTransactions, takePrint, isBackendUp } = useContext(InventaryManagementContext);
     const [filteredTransactions, setFilteredTransactions] = useState(null);
     const [showFilterOptionsDialog, setShowFilterOptionsDialog] = useState(false);
     const [filterWareHouseCode, setFilterWareHouseCode] = useState([]);
@@ -47,7 +48,7 @@ function Transactions() {
             if (filterProductGroup && filterProductGroup.code && transaction.productGroup !== filterProductGroup.code) {
                 return false;
             }
-            if (filterProductName && !filterProductName.every(productNameFiltered => transaction.productName === productNameFiltered.code)) {
+            if (filterProductName && !filterProductName.every(productNameFiltered => transaction.productItem === productNameFiltered.code)) {
                 return false;
             }
             if (filterTransactionType && filterTransactionType.code && transaction.transactionType !== filterTransactionType.code) {
@@ -91,6 +92,9 @@ function Transactions() {
         fetchTransactions();
     }, []);
 
+    if (!isBackendUp) {
+        return <ServerDownMessage />;
+    }
     const transactionTypes = [
         { name: "Inflow", code: "Inflow" },
         { name: "Outflow", code: "Outflow" }
@@ -112,7 +116,7 @@ function Transactions() {
         return flag;
     }
     const warehouses = [...new Set(transactions.map(transaction => transaction.wareHouseCode))].map(wareHouseCode => { return { name: wareHouseCode, code: wareHouseCode } });
-    const productGroups = [...new Set(transactions.filter(matchedProductGroups))].map(transaction => transaction.productGroup).map(productGroup => { return { name: productGroup, code: productGroup } });
+    const productGroups = [...new Set(transactions.filter(matchedProductGroups).map(transaction => transaction.productGroup))].map(productGroup => { return { name: productGroup, code: productGroup } });
     const productNames = [...new Set(transactions.filter(matchedProductNames).map(transaction => transaction.productItem))].map(productItem => { return { name: productItem, code: productItem } });
 
     const dateFormat = (rowData) => {

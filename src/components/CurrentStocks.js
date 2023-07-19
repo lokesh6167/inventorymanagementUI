@@ -7,9 +7,10 @@ import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { MultiSelect } from 'primereact/multiselect';
+import ServerDownMessage from './ServerDownMessage';
 
 function CurrentStocks() {
-    const { products, fetchProducts, takePrint } = useContext(InventaryManagementContext);
+    const { products, fetchProducts, takePrint, isBackendUp } = useContext(InventaryManagementContext);
     const [filteredStocksFlag, setFilteredStocksFlag] = useState(false);
     const [filteredStocks, setFilteredStocks] = useState(null);
     const [showFilterOptionsDialog, setShowFilterOptionsDialog] = useState(false);
@@ -89,9 +90,12 @@ function CurrentStocks() {
         return flag;
     }
     const warehouses = [...new Set(products.map(product => product.wareHouseCode))].map(wareHouseCode => { return { name: wareHouseCode, code: wareHouseCode } });
-    const productGroups = [...new Set(products.filter(matchedProductGroups))].map(product => product.productGroup).map(productGroup => { return { name: productGroup, code: productGroup } });
+    const productGroups = [...new Set(products.filter(matchedProductGroups).map(product => product.productGroup))].map(productGroup => { return { name: productGroup, code: productGroup } });
     const productNames = [...new Set(products.filter(matchedProductNames).map(product => product.productItem))].map(productItem => { return { name: productItem, code: productItem } });
 
+    if (!isBackendUp) {
+        return <ServerDownMessage />;
+    }
 
     return (
         <div className='current-stocks-container'>

@@ -66,8 +66,21 @@
 }
 .transaction-headers .transactions_filter_and_print_buttons button {
     margin-right: 10px; /* Add some spacing between the buttons if needed */
-  }
-
+}
+.take-print-btn{
+    margin-left: 25em;
+}
+.take-print-btn-add-product{
+    margin-left: 15em;
+}
+.server-down-container{
+    max-width: 700px;
+    margin: auto;
+}
+.custom-margin-bottom-2 {
+    margin-bottom: 2px;
+}
+  
   /* Printing styles */
   @media print {
     @page {

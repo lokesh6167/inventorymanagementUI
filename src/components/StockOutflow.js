@@ -8,9 +8,9 @@ import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 import Table from 'react-bootstrap/Table';
 import moment from 'moment';
-
+import ServerDownMessage from './ServerDownMessage';
 function StockOutflow() {
-    const { products, updateProducts, fetchProducts, takePrint } = useContext(InventaryManagementContext);
+    const { products, updateProducts, fetchProducts, takePrint, isBackendUp } = useContext(InventaryManagementContext);
     useEffect(() => {
         fetchProducts();
     }, []);
@@ -35,7 +35,7 @@ function StockOutflow() {
         return false;
     }
     const warehouses = [...new Set(products.map(product => product.wareHouseCode))].map(wareHouseCode => { return { name: wareHouseCode, code: wareHouseCode } });
-    const productGroups = [...new Set(products.filter(matchedProductGroups))].map(product => product.productGroup).map(productGroup => { return { name: productGroup, code: productGroup } });
+    const productGroups = [...new Set(products.filter(matchedProductGroups).map(product => product.productGroup))].map(productGroup => { return { name: productGroup, code: productGroup } });
     const productNames = [...new Set(products.filter(matchedProductNames).map(product => product.productItem))].map(productItem => { return { name: productItem, code: productItem } });
 
     const validate = () => {
@@ -68,29 +68,43 @@ function StockOutflow() {
         setErrors(errors);
         return noErros;
     }
+
     const handleStockOutflow = async (e) => {
         e.preventDefault();
         if (validate()) {
-            const updatingProductId = products.find(product =>
+            const updatingProduct = products.find(product =>
                 product.wareHouseCode === selectedWareHouse.code &&
                 product.productGroup === selectedProductGroup.code &&
                 product.productItem === selectedProductName.code
-            ).id;
-            const outflowTransactionPayload = {
-                wareHouseCode: selectedWareHouse.code,
-                productGroup: selectedProductGroup.code,
-                productItem: selectedProductName.code,
-                invoiceNumber,
-                transactionType: "Outflow",
-                dateOfTransaction: soldDate,
-                transactionQuantity: soldQuantity
+            );
+            if (updatingProduct) {
+                const currentStockQuantityOfUpdatingProduct = updatingProduct.stockQuantity;
+                const updatingProductId = updatingProduct.id
+                /*Adding 10hour offset to fix date issue in transactions*/
+                const offsetSoldDate = new Date(soldDate.getTime() + 10 * 60 * 60 * 1000);
+                if (currentStockQuantityOfUpdatingProduct >= soldQuantity) {
+                    const outflowTransactionPayload = {
+                        wareHouseCode: selectedWareHouse.code,
+                        productGroup: selectedProductGroup.code,
+                        productItem: selectedProductName.code,
+                        invoiceNumber,
+                        transactionType: "Outflow",
+                        dateOfTransaction: moment(offsetSoldDate).toISOString(),
+                        transactionQuantity: soldQuantity
+                    }
+                    const outFlowOrderData = await updateProducts(updatingProductId, outflowTransactionPayload);
+                    outFlowOrderData["invoiceNumber"] = invoiceNumber;
+                    outFlowOrderData["soldQuantity"] = soldQuantity;
+                    outFlowOrderData["soldDate"] = soldDate;
+                    setOrderResponse(outFlowOrderData);
+                    setErrors({ wareHouseCode: "", productGroup: "", productName: "", soldDate: "", soldQuantity: '' });
+                } else {
+                    setErrors({
+                        ...errors,
+                        soldQuantity: `Current Stock Quantity (${currentStockQuantityOfUpdatingProduct}) is less than the selling quantity (${soldQuantity}). Please check again`,
+                    });
+                }
             }
-            const outFlowOrderData = await updateProducts(updatingProductId, outflowTransactionPayload);
-            outFlowOrderData["invoiceNumber"] = invoiceNumber;
-            outFlowOrderData["soldQuantity"] = soldQuantity;
-            outFlowOrderData["soldDate"] = soldDate;
-            setOrderResponse(outFlowOrderData);
-            setErrors({ wareHouseCode: "", productGroup: "", productName: "", soldDate: "", soldQuantity: '' });
         }
     }
     useEffect(() => {
@@ -110,6 +124,9 @@ function StockOutflow() {
     const addAnotherOutflow = () => {
         setOrderCompletionStatus(!orderCompletionStatus);
     }
+    if (!isBackendUp) {
+        return <ServerDownMessage />;
+    }
 
     return (
         <div className={orderCompletionStatus ? "stock-outflow-transaction-completed-container" : "stock-outflow-container"}>
@@ -124,7 +141,7 @@ function StockOutflow() {
                     <div className="card flex justify-content-center">
                         {orderResponse ?
                             <>
-                                <Table striped bordered hover>
+                                <Table className='custom-margin-bottom-2' striped bordered hover>
                                     <thead>
                                         <tr>
                                             <th>category</th>
@@ -162,8 +179,8 @@ function StockOutflow() {
                                         </tr>
                                     </tbody>
                                 </Table>
-                                <div className="p-d-flex p-jc-center p-mt-5">
-                                    <Button label="Take Print" onClick={takePrint} />
+                                <div className="p-d-flex p-justify-center p-align-center p-jc-center p-mt-5">
+                                    <Button className="take-print-btn" label="Take Print" onClick={takePrint} />
                                 </div>
                             </>
                             :

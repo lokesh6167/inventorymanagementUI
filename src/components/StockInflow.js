@@ -8,13 +8,15 @@ import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 import Table from 'react-bootstrap/Table';
 import moment from 'moment';
+import ServerDownMessage from './ServerDownMessage';
 
 
 function StockInflow() {
-  const { products, updateProducts, fetchProducts, takePrint } = useContext(InventaryManagementContext);
+  const { products, updateProducts, fetchProducts, takePrint, isBackendUp } = useContext(InventaryManagementContext);
   useEffect(() => {
     fetchProducts();
   }, []);
+
   const [orderCompletionStatus, setOrderCompletionStatus] = useState(false);
   const [orderResponse, setOrderResponse] = useState(null);
   const [selectedWareHouse, setSelectedWareHouse] = useState([]);
@@ -35,7 +37,7 @@ function StockInflow() {
     return false;
   }
   const warehouses = [...new Set(products.map(product => product.wareHouseCode))].map(wareHouseCode => { return { name: wareHouseCode, code: wareHouseCode } });
-  const productGroups = [...new Set(products.filter(matchedProductGroups))].map(product => product.productGroup).map(productGroup => { return { name: productGroup, code: productGroup } });
+  const productGroups = [...new Set(products.filter(matchedProductGroups).map(product => product.productGroup))].map(productGroup => { return { name: productGroup, code: productGroup } });
   const productNames = [...new Set(products.filter(matchedProductNames).map(product => product.productItem))].map(productItem => { return { name: productItem, code: productItem } });
   const validate = () => {
     let noErros = true;
@@ -76,6 +78,8 @@ function StockInflow() {
         product.productGroup === selectedProductGroup.code &&
         product.productItem === selectedProductName.code
       );
+      /*Adding 10hour offset to fix date issue in transactions*/
+      const offsetPurchasedDate = new Date(purchasedDate.getTime() + 10 * 60 * 60 * 1000);
       if (updatingProduct) updatingProductId = updatingProduct.id;
       const inflowTransactionPayload = {
         wareHouseCode: selectedWareHouse.code,
@@ -83,7 +87,7 @@ function StockInflow() {
         productItem: selectedProductName.code,
         invoiceNumber,
         transactionType: "Inflow",
-        dateOfTransaction: purchasedDate,
+        dateOfTransaction: moment(offsetPurchasedDate).toISOString(),
         transactionQuantity: purchasedQuantity
       }
       const inFlowOrderData = await updateProducts(updatingProductId, inflowTransactionPayload);
@@ -109,6 +113,11 @@ function StockInflow() {
       setOrderCompletionStatus(!orderCompletionStatus);
     }
   }, [orderResponse]);
+
+  if (!isBackendUp) {
+    return <ServerDownMessage />;
+  }
+
   return (
     <div className={orderCompletionStatus ? "stock-inflow-transaction-completed-container" : "stock-inflow-container"}>
       <p class="h2">Stock Inflow</p>
@@ -122,7 +131,7 @@ function StockInflow() {
           <div className="card flex justify-content-center">
             {orderResponse ?
               <>
-                <Table striped bordered hover>
+                <Table className='custom-margin-bottom-2' striped bordered hover>
                   <thead>
                     <tr>
                       <th>category</th>
@@ -160,8 +169,8 @@ function StockInflow() {
                     </tr>
                   </tbody>
                 </Table>
-                <div className="p-d-flex p-jc-center p-mt-5">
-                  <Button label="Take Print" onClick={takePrint} />
+                <div className="p-d-flex p-justify-center p-align-center p-jc-center p-mt-5">
+                  <Button className="take-print-btn" label="Take Print" onClick={takePrint} />
                 </div>
               </>
               :
