@@ -98,7 +98,7 @@ function CurrentStocks() {
     }
 
     return (
-        <div className='current-stocks-container landscape-print'>
+        <div className='current-stocks-container table-fit-content'>
             <div className='transaction-headers'>
                 <p class="h2">Current Stocks</p>
                 <div className='transactions_filter_and_print_buttons'>
@@ -134,14 +134,14 @@ function CurrentStocks() {
                 </div>
             </Dialog>
             {filteredStocksFlag && <h4>Filtered Current Stocks : </h4>}
-            <Divider />
+            <Divider className="exclude-from-print" />
             <div className="card">
                 <DataTable value={filteredStocksFlag ? filteredStocks : products} tableStyle={{ minWidth: '50rem' }}>
-                    <Column className="exclude-from-print" field="id" header="Id"></Column>
+                    <Column field="id" header="Serial No."></Column>
                     <Column field="wareHouseCode" header="WareHouse Code"></Column>
                     <Column field="productGroup" header="Product Group"></Column>
                     <Column field="productItem" header="Product Name"></Column>
-                    <Column field="stockQuantity" header="Quantity"></Column>
+                    <Column field="stockQuantity" header="Current Stock Quantity"></Column>
                 </DataTable>
             </div>
         </div>

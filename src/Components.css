@@ -55,6 +55,10 @@
 .transactions-container{
     max-width: 1200px;
     margin: auto;
+    @page {
+        size: portrait;
+        margin: 1em;
+    }
 }
 .transaction-headers{
     display: flex;
@@ -62,7 +66,6 @@
 }
 .transaction-headers .transactions_filter_and_print_buttons{
     display: flex;
-    /* align-items: center; */
 }
 .transaction-headers .transactions_filter_and_print_buttons button {
     margin-right: 10px; /* Add some spacing between the buttons if needed */
@@ -90,10 +93,7 @@
         size: portrait;
         margin: 1em;
       }
-    @page :header {
-        display: none;
-      }
-    
+      
     @page :footer {
         display: none;
       }
@@ -101,13 +101,10 @@
       margin: 0;
       padding: 0;
     }
-    .p-datatable-print {
-        font-size: 10px; /* Adjust font size as needed */
-      }
-      .p-datatable-print .p-datatable-scrollable-view,
-      .p-datatable-print .p-datatable-unfrozen-view {
-        overflow: visible !important;
+    .table-fit-content{
+        width:fit-content;
     }
+
     landscape-print{
         transform: rotate(90deg);
         transform-origin: left top;

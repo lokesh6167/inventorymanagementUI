@@ -181,10 +181,10 @@ function Transactions() {
                 </div>
             </Dialog>
             {filteredTransactionsFlag && <h4>Filtered Transactions : </h4>}
-            <Divider />
-            <div className="card landscape-print">
+            <Divider className='exclude-from-print' />
+            <div className="card table-fit-content">
                 <DataTable value={filteredTransactionsFlag ? filteredTransactions : transactions} tableStyle={{ minWidth: '50rem' }}>
-                    <Column className="exclude-from-print" field="id" header="Id"></Column>
+                    <Column field="id" header="Serial No."></Column>
                     <Column field="wareHouseCode" header="WareHouse Code"></Column>
                     <Column field="productGroup" header="Product Group"></Column>
                     <Column field="productItem" header="Product Name"></Column>
