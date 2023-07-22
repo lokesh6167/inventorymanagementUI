@@ -141,7 +141,7 @@ function CurrentStocks() {
                     <Column field="wareHouseCode" header="WareHouse Code"></Column>
                     <Column field="productGroup" header="Product Group"></Column>
                     <Column field="productItem" header="Product Name"></Column>
-                    <Column field="stockQuantity" header="Stock Quantity"></Column>
+                    <Column field="stockQuantity" header="Quantity"></Column>
                 </DataTable>
             </div>
         </div>
