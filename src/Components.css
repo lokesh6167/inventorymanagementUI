@@ -104,10 +104,16 @@
     .table-fit-content{
         width:fit-content;
     }
+    .table-fit-content{
+        width:fit-content;
+    }
+    .table-container-center{
+        display: flex;
+        justify-content: center;
+    }
 
-    landscape-print{
-        transform: rotate(90deg);
-        transform-origin: left top;
+    .print-no-border{
+        border:none !important;
     }
     /* Hide unnecessary elements */
     header, footer, nav, .exclude-from-print {

@@ -12,7 +12,7 @@ import ServerDownMessage from './ServerDownMessage';
 
 
 function StockInflow() {
-  const { products, updateProducts, fetchProducts, takePrint, isBackendUp } = useContext(InventaryManagementContext);
+  const { products, updateProducts, fetchProducts, takePrint, isBackendUp, transactions } = useContext(InventaryManagementContext);
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -57,6 +57,13 @@ function StockInflow() {
     if (!invoiceNumber) {
       errors.invoiceNumber = "Please enter invoice number";
       noErros = false;
+    } else {
+      transactions.forEach(transaction => {
+        if (transaction.invoiceNumber === invoiceNumber) {
+          errors.invoiceNumber = `Existing transaction on date ${moment(transaction.dateOfTransaction).format('DD-MMM-YYYY')} with same invoice number. Please proceed with new invoice number. For more details about transactions please check on transactions history..`;
+          noErros = false;
+        }
+      })
     }
     if (!purchasedDate) {
       errors.purchasedDate = "Please select purchased date";
@@ -128,50 +135,52 @@ function StockInflow() {
             <p class="h5 text-success">purchase transaction is successful. Please find the details of current transaction here</p>
             <Button label="Add another purchase transaction" onClick={addAnotherInflow} />
           </div>
-          <div className="card flex justify-content-center">
+          <div className="card flex justify-content-center print-no-border">
             {orderResponse ?
               <>
-                <Table className='custom-margin-bottom-2' striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th className="text-center" colSpan={2}>Purchase Challan </th>
-                    </tr>
-                    <tr className='exclude-from-print'>
-                      <th>category</th>
-                      <th>value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Ware House Code</td>
-                      <td>{orderResponse.wareHouseCode}</td>
-                    </tr>
-                    <tr>
-                      <td>Product Group</td>
-                      <td>{orderResponse.productGroup}</td>
-                    </tr>
-                    <tr>
-                      <td>Product Name</td>
-                      <td>{orderResponse.productItem}</td>
-                    </tr>
-                    <tr>
-                      <td>Invoice Number</td>
-                      <td>{orderResponse.invoiceNumber}</td>
-                    </tr>
-                    <tr>
-                      <td>Sold Date</td>
-                      <td>{moment(orderResponse.purchasedDate).format("DD-MMM-YYYY")}</td>
-                    </tr>
-                    <tr>
-                      <td>Sold Quantity</td>
-                      <td>{orderResponse.purchasedQuantity}</td>
-                    </tr>
-                    <tr>
-                      <td>Current Quantity</td>
-                      <td>{orderResponse.stockQuantity}</td>
-                    </tr>
-                  </tbody>
-                </Table>
+                <div className='table-container-center'>
+                  <Table className='custom-margin-bottom-2 table-fit-content' striped bordered hover>
+                    <thead>
+                      <tr>
+                        <th className="text-center" colSpan={2}>Purchase Challan </th>
+                      </tr>
+                      <tr className='exclude-from-print'>
+                        <th>category</th>
+                        <th>value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Ware House Code</td>
+                        <td>{orderResponse.wareHouseCode}</td>
+                      </tr>
+                      <tr>
+                        <td>Product Group</td>
+                        <td>{orderResponse.productGroup}</td>
+                      </tr>
+                      <tr>
+                        <td>Product Name</td>
+                        <td>{orderResponse.productItem}</td>
+                      </tr>
+                      <tr>
+                        <td>Invoice Number</td>
+                        <td>{orderResponse.invoiceNumber}</td>
+                      </tr>
+                      <tr>
+                        <td>Sold Date</td>
+                        <td>{moment(orderResponse.purchasedDate).format("DD-MMM-YYYY")}</td>
+                      </tr>
+                      <tr>
+                        <td>Sold Quantity</td>
+                        <td>{orderResponse.purchasedQuantity}</td>
+                      </tr>
+                      <tr>
+                        <td>Current Quantity</td>
+                        <td>{orderResponse.stockQuantity}</td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                </div>
                 <div className="p-d-flex p-justify-center p-align-center p-jc-center p-mt-5 exclude-from-print">
                   <Button className="take-print-btn" label="Take Print" onClick={takePrint} />
                 </div>

@@ -99,8 +99,8 @@ function AddNewProduct() {
 
     return (
         <div className="add-new-product-container">
-            <p className="h2">Add Product</p>
-            <Divider />
+            <p className="h2 exclude-from-print">Add Product</p>
+            <Divider className='exclude-from-print' />
             {addedProductFlag ? (
                 <>
                     <div className="receipt-headings exclude-from-print">
@@ -112,35 +112,40 @@ function AddNewProduct() {
                             onClick={addAnotherNewProduct}
                         />
                     </div>
-                    <div className="card flex justify-content-center">
+                    <div className="card flex justify-content-center print-no-border">
                         {addedProductResponse ? (
                             <>
-                                <Table className='custom-margin-bottom-2' striped bordered hover>
-                                    <thead>
-                                        <tr>
-                                            <th>Category</th>
-                                            <th>Value</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Warehouse Code</td>
-                                            <td>{addedProductResponse.wareHouseCode}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Product Group</td>
-                                            <td>{addedProductResponse.productGroup}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Product Name</td>
-                                            <td>{addedProductResponse.productItem}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Current Stock Quantity</td>
-                                            <td>{addedProductResponse.stockQuantity}</td>
-                                        </tr>
-                                    </tbody>
-                                </Table>
+                                <div className='table-container-center'>
+                                    <Table className='custom-margin-bottom-2 table-fit-content' striped bordered hover>
+                                        <thead>
+                                            <tr>
+                                                <th className="text-center" colSpan={2}>New Product Details</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Category</th>
+                                                <th>Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Warehouse Code</td>
+                                                <td>{addedProductResponse.wareHouseCode}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Product Group</td>
+                                                <td>{addedProductResponse.productGroup}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Product Name</td>
+                                                <td>{addedProductResponse.productItem}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Current Stock Quantity</td>
+                                                <td>{addedProductResponse.stockQuantity}</td>
+                                            </tr>
+                                        </tbody>
+                                    </Table>
+                                </div>
                                 <div className="p-d-flex p-justify-center p-align-center p-jc-center p-mt-5 exclude-from-print">
                                     <Button className="take-print-btn-add-product" label="Take Print" onClick={takePrint} />
                                 </div>
