@@ -37,7 +37,7 @@ function CurrentStocks() {
         const filteredStocks = products.filter((product) => {
             if (filterWareHouseCode) {
                 filterWareHouseCode.forEach(wareHouseCodeFiltered => {
-                    if (wareHouseCodeFiltered.code && product.wareHouseCode != wareHouseCodeFiltered.code) {
+                    if (wareHouseCodeFiltered.code && product.wareHouseCode !== wareHouseCodeFiltered.code) {
                         return false;
                     }
                 })
@@ -47,7 +47,7 @@ function CurrentStocks() {
             }
             if (filterProductName) {
                 filterProductName.forEach(productNameFiltered => {
-                    if (productNameFiltered.code && product.productName != productNameFiltered.code) {
+                    if (productNameFiltered.code && product.productName !== productNameFiltered.code) {
                         return false;
                     }
                 })
@@ -76,7 +76,7 @@ function CurrentStocks() {
     const matchedProductGroups = (product) => {
         let flag = false;
         filterWareHouseCode.forEach(wareHouse => {
-            if (wareHouse.code == product.wareHouseCode)
+            if (wareHouse.code === product.wareHouseCode)
                 flag = true;
         });
         return flag;
@@ -84,7 +84,7 @@ function CurrentStocks() {
     const matchedProductNames = (product) => {
         let flag = false;
         filterWareHouseCode.forEach(wareHouse => {
-            if (wareHouse.code == product.wareHouseCode && filterProductGroup.code == product.productGroup)
+            if (wareHouse.code === product.wareHouseCode && filterProductGroup.code === product.productGroup)
                 flag = true;
         });
         return flag;
@@ -98,14 +98,14 @@ function CurrentStocks() {
     }
 
     return (
-        <div className='current-stocks-container'>
+        <div className='current-stocks-container landscape-print'>
             <div className='transaction-headers'>
                 <p class="h2">Current Stocks</p>
                 <div className='transactions_filter_and_print_buttons'>
-                    <div className="p-jc-center p-mt-5">
+                    <div className="p-jc-center p-mt-5 exclude-from-print">
                         <Button label="Filter Stocks" icon="pi pi-external-link" onClick={() => onClick('filterStocks')} />
                     </div>
-                    <div className="p-jc-center p-mt-5">
+                    <div className="p-jc-center p-mt-5 exclude-from-print">
                         <Button label="Take Print" onClick={takePrint} />
                     </div>
                 </div>
@@ -137,7 +137,7 @@ function CurrentStocks() {
             <Divider />
             <div className="card">
                 <DataTable value={filteredStocksFlag ? filteredStocks : products} tableStyle={{ minWidth: '50rem' }}>
-                    <Column field="id" header="Id"></Column>
+                    <Column className="exclude-from-print" field="id" header="Id"></Column>
                     <Column field="wareHouseCode" header="WareHouse Code"></Column>
                     <Column field="productGroup" header="Product Group"></Column>
                     <Column field="productItem" header="Product Name"></Column>

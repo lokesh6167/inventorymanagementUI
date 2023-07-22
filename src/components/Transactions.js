@@ -96,8 +96,8 @@ function Transactions() {
         return <ServerDownMessage />;
     }
     const transactionTypes = [
-        { name: "Inflow", code: "Inflow" },
-        { name: "Outflow", code: "Outflow" }
+        { name: "Purchase", code: "Purchase" },
+        { name: "Delivery", code: "Delivery" }
     ]
     const matchedProductGroups = (product) => {
         let flag = false;
@@ -128,12 +128,12 @@ function Transactions() {
     return (
         <div className='transactions-container'>
             <div className='transaction-headers'>
-                <p class="h2">Transactions</p>
+                <p class="h2 landscape-print">Transactions</p>
                 <div className='transactions_filter_and_print_buttons'>
-                    <div className="p-jc-center p-mt-5">
+                    <div className="p-jc-center p-mt-5 exclude-from-print">
                         <Button label="Filter Transactions" icon="pi pi-external-link" onClick={() => onClick('filterTransactions')} />
                     </div>
-                    <div className="p-jc-center p-mt-5">
+                    <div className="p-jc-center p-mt-5 exclude-from-print">
                         <Button label="Take Print" onClick={takePrint} />
                     </div>
                 </div>
@@ -182,9 +182,9 @@ function Transactions() {
             </Dialog>
             {filteredTransactionsFlag && <h4>Filtered Transactions : </h4>}
             <Divider />
-            <div className="card">
+            <div className="card landscape-print">
                 <DataTable value={filteredTransactionsFlag ? filteredTransactions : transactions} tableStyle={{ minWidth: '50rem' }}>
-                    <Column field="id" header="Id"></Column>
+                    <Column className="exclude-from-print" field="id" header="Id"></Column>
                     <Column field="wareHouseCode" header="WareHouse Code"></Column>
                     <Column field="productGroup" header="Product Group"></Column>
                     <Column field="productItem" header="Product Name"></Column>

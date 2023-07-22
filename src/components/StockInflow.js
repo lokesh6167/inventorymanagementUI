@@ -24,7 +24,7 @@ function StockInflow() {
   const [selectedProductName, setSelectedProductName] = useState([]);
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [purchasedQuantity, setPurchasedQuantity] = useState("");
-  const [purchasedDate, setPurchasedDate] = useState("");
+  const [purchasedDate, setPurchasedDate] = useState(new Date());
   const [errors, setErrors] = useState({});
   const matchedProductGroups = (product) => {
     if (selectedWareHouse && selectedWareHouse.code === product.wareHouseCode)
@@ -86,7 +86,7 @@ function StockInflow() {
         productGroup: selectedProductGroup.code,
         productItem: selectedProductName.code,
         invoiceNumber,
-        transactionType: "Inflow",
+        transactionType: "Purchase",
         dateOfTransaction: moment(offsetPurchasedDate).toISOString(),
         transactionQuantity: purchasedQuantity
       }
@@ -120,13 +120,13 @@ function StockInflow() {
 
   return (
     <div className={orderCompletionStatus ? "stock-inflow-transaction-completed-container" : "stock-inflow-container"}>
-      <p class="h2">Stock Inflow</p>
-      <Divider />
+      <p class="h2 exclude-from-print">Purchase</p>
+      <Divider className='exclude-from-print' />
       {orderCompletionStatus ?
         <>
-          <div className="receipt-headings">
-            <p class="h5 text-success">Inflow transaction is successful. Please find the details of current transaction here</p>
-            <Button label="Add another Inflow transaction" onClick={addAnotherInflow} />
+          <div className="receipt-headings exclude-from-print">
+            <p class="h5 text-success">purchase transaction is successful. Please find the details of current transaction here</p>
+            <Button label="Add another purchase transaction" onClick={addAnotherInflow} />
           </div>
           <div className="card flex justify-content-center">
             {orderResponse ?
@@ -134,6 +134,9 @@ function StockInflow() {
                 <Table className='custom-margin-bottom-2' striped bordered hover>
                   <thead>
                     <tr>
+                      <th className="text-center" colSpan={2}>Purchase Challan </th>
+                    </tr>
+                    <tr className='exclude-from-print'>
                       <th>category</th>
                       <th>value</th>
                     </tr>
@@ -169,7 +172,7 @@ function StockInflow() {
                     </tr>
                   </tbody>
                 </Table>
-                <div className="p-d-flex p-justify-center p-align-center p-jc-center p-mt-5">
+                <div className="p-d-flex p-justify-center p-align-center p-jc-center p-mt-5 exclude-from-print">
                   <Button className="take-print-btn" label="Take Print" onClick={takePrint} />
                 </div>
               </>
@@ -180,6 +183,13 @@ function StockInflow() {
         </>
         :
         <>
+          <div class="form-group row m-3 ">
+            <label for="purchaseddate" class="col-sm-4 col-form-label">Purchased Date<span className="required-field">*</span></label>
+            <div class="col-sm-8">
+              <Calendar value={purchasedDate} onChange={(e) => setPurchasedDate(e.value)} dateFormat="dd/mm/yy" showIcon className="w-full md:w-14rem form-field-generic-size" />
+              {errors.purchasedDate && <small className="p-error display-block">{errors.purchasedDate}.</small>}
+            </div>
+          </div>
           <div class="form-group row m-3 ">
             <label for="warehousecode" class="col-sm-4 col-form-label">Warehouse Code<span className="required-field">*</span></label>
             <div class="col-sm-8">
@@ -209,13 +219,6 @@ function StockInflow() {
             <div class="col-sm-8">
               <InputText id="invoicenumber" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} className="w-full md:w-14rem form-field-generic-size" />
               {errors.invoiceNumber && <small className="p-error display-block">{errors.invoiceNumber}.</small>}
-            </div>
-          </div>
-          <div class="form-group row m-3 ">
-            <label for="purchaseddate" class="col-sm-4 col-form-label">Purchased Date<span className="required-field">*</span></label>
-            <div class="col-sm-8">
-              <Calendar value={purchasedDate} onChange={(e) => setPurchasedDate(e.value)} dateFormat="dd/mm/yy" showIcon className="w-full md:w-14rem form-field-generic-size" />
-              {errors.purchasedDate && <small className="p-error display-block">{errors.purchasedDate}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">

@@ -22,7 +22,7 @@ function StockOutflow() {
     const [selectedProductName, setSelectedProductName] = useState("");
     const [invoiceNumber, setInvoiceNumber] = useState("");
     const [soldQuantity, setSoldQuantity] = useState("");
-    const [soldDate, setSoldDate] = useState("");
+    const [soldDate, setSoldDate] = useState(new Date());
     const [errors, setErrors] = useState({ wareHouseCode: "", productGroup: "", productName: "", invoiceNumber: "", soldDate: "", soldQuantity: "" });
     const matchedProductGroups = (product) => {
         if (selectedWareHouse && selectedWareHouse.code === product.wareHouseCode)
@@ -88,7 +88,7 @@ function StockOutflow() {
                         productGroup: selectedProductGroup.code,
                         productItem: selectedProductName.code,
                         invoiceNumber,
-                        transactionType: "Outflow",
+                        transactionType: "Delivery",
                         dateOfTransaction: moment(offsetSoldDate).toISOString(),
                         transactionQuantity: soldQuantity
                     }
@@ -130,13 +130,13 @@ function StockOutflow() {
 
     return (
         <div className={orderCompletionStatus ? "stock-outflow-transaction-completed-container" : "stock-outflow-container"}>
-            <p class="h2">Stock Outflow</p>
-            <Divider />
+            <p className="h2 exclude-from-print">Delivery</p>
+            <Divider className="exclude-from-print" />
             {orderCompletionStatus ?
                 <>
-                    <div className="receipt-headings">
-                        <p class="h5 text-success">Outflow transaction is successful. Please find the details of current transaction here</p>
-                        <Button label="Add another outflow transaction" onClick={addAnotherOutflow} />
+                    <div className="receipt-headings exclude-from-print">
+                        <p class="h5 text-success">Delivery transaction is successful. Please find the details of current transaction here</p>
+                        <Button label="Add another delivery transaction" onClick={addAnotherOutflow} />
                     </div>
                     <div className="card flex justify-content-center">
                         {orderResponse ?
@@ -144,6 +144,9 @@ function StockOutflow() {
                                 <Table className='custom-margin-bottom-2' striped bordered hover>
                                     <thead>
                                         <tr>
+                                            <th className="text-center" colSpan={2}>Delivery Challan </th>
+                                        </tr>
+                                        <tr className='exclude-from-print'>
                                             <th>category</th>
                                             <th>value</th>
                                         </tr>
@@ -173,13 +176,13 @@ function StockOutflow() {
                                             <td>Sold Quantity</td>
                                             <td>{orderResponse.soldQuantity}</td>
                                         </tr>
-                                        <tr>
+                                        <tr className='exclude-from-print'>
                                             <td>Current Quantity</td>
                                             <td>{orderResponse.stockQuantity}</td>
                                         </tr>
                                     </tbody>
                                 </Table>
-                                <div className="p-d-flex p-justify-center p-align-center p-jc-center p-mt-5">
+                                <div className="p-d-flex p-justify-center p-align-center p-jc-center p-mt-5 exclude-from-print">
                                     <Button className="take-print-btn" label="Take Print" onClick={takePrint} />
                                 </div>
                             </>
@@ -190,6 +193,13 @@ function StockOutflow() {
                 </>
                 :
                 <>
+                    <div class="form-group row m-3 ">
+                        <label for="solddate" class="col-sm-4 col-form-label">Sold Date<span className="required-field">*</span></label>
+                        <div class="col-sm-8">
+                            <Calendar value={soldDate} onChange={(e) => setSoldDate(e.value)} dateFormat="dd/mm/yy" showIcon className="w-full md:w-14rem form-field-generic-size" />
+                            {errors.soldDate && <small className="p-error display-block">{errors.soldDate}.</small>}
+                        </div>
+                    </div>
                     <div class="form-group row m-3 ">
                         <label for="warehousecode" class="col-sm-4 col-form-label">Warehouse Code<span className="required-field">*</span></label>
                         <div class="col-sm-8">
@@ -222,13 +232,6 @@ function StockOutflow() {
                         </div>
                     </div>
                     <div class="form-group row m-3 ">
-                        <label for="solddate" class="col-sm-4 col-form-label">Sold Date<span className="required-field">*</span></label>
-                        <div class="col-sm-8">
-                            <Calendar value={soldDate} onChange={(e) => setSoldDate(e.value)} dateFormat="dd/mm/yy" showIcon className="w-full md:w-14rem form-field-generic-size" />
-                            {errors.soldDate && <small className="p-error display-block">{errors.soldDate}.</small>}
-                        </div>
-                    </div>
-                    <div class="form-group row m-3 ">
                         <label for="soldquantity" class="col-sm-4 col-form-label">Sold Quantity<span className="required-field">*</span></label>
                         <div class="col-sm-8">
                             <InputNumber id="soldquantity" value={soldQuantity} onValueChange={(e) => setSoldQuantity(e.target.value)} min={0} mode="decimal" className="w-full md:w-14rem form-field-generic-size" />
@@ -243,7 +246,7 @@ function StockOutflow() {
                     </div>
                 </>
             }
-        </div>
+        </div >
     );
 }
 

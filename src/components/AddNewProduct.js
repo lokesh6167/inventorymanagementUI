@@ -103,7 +103,7 @@ function AddNewProduct() {
             <Divider />
             {addedProductFlag ? (
                 <>
-                    <div className="receipt-headings">
+                    <div className="receipt-headings exclude-from-print">
                         <p className="h5 text-success">
                             New product has been added successfully. Please find the details
                         </p>
@@ -141,7 +141,7 @@ function AddNewProduct() {
                                         </tr>
                                     </tbody>
                                 </Table>
-                                <div className="p-d-flex p-justify-center p-align-center p-jc-center p-mt-5">
+                                <div className="p-d-flex p-justify-center p-align-center p-jc-center p-mt-5 exclude-from-print">
                                     <Button className="take-print-btn-add-product" label="Take Print" onClick={takePrint} />
                                 </div>
                             </>
@@ -160,12 +160,6 @@ function AddNewProduct() {
                             Warehouse Code<span className="required-field">*</span>
                         </label>
                         <div className="col-sm-8">
-                            {/* <InputText
-                                id="warehousecode"
-                                value={wareHouseCode}
-                                onChange={(e) => setWareHouseCode(e.target.value)}
-                                className="w-full md:w-14rem form-field-generic-size"
-                            /> */}
                             <Dropdown value={wareHouseCode} onChange={(e) => setWareHouseCode(e.value)} options={warehouses} optionLabel="name"
                                 placeholder="Select a Warehouse" className="w-full md:w-14rem form-field-generic-size" />
                             {errors.wareHouseCode && (

@@ -30,10 +30,10 @@ function App() {
                   <Link className={`${location.pathname === '/' ? 'orange-font' : ''} nav-link`} to="/"><span className='h5'>Current Stock</span></Link>
                 </li>
                 <li className={`${location.pathname === "/stockinflow" ? 'active bold-underline' : ''} nav-item`}>
-                  <Link className={`${location.pathname === '/stockinflow' ? 'orange-font' : ''} nav-link`} to="/stockinflow"><span className='h5'>Stock Inflow</span></Link>
+                  <Link className={`${location.pathname === '/stockinflow' ? 'orange-font' : ''} nav-link`} to="/stockinflow"><span className='h5'>Purchase</span></Link>
                 </li>
                 <li className={`${location.pathname === "/stockoutflow" ? 'active bold-underline' : ''} nav-item`}>
-                  <Link className={`${location.pathname === '/stockoutflow' ? 'orange-font' : ''} nav-link`} to="/stockoutflow"><span className='h5'>Stock Outflow</span></Link>
+                  <Link className={`${location.pathname === '/stockoutflow' ? 'orange-font' : ''} nav-link`} to="/stockoutflow"><span className='h5'>Delivery</span></Link>
                 </li>
                 <li className={`${location.pathname === '/addnewproduct' ? 'active bold-underline' : ''} nav-item`}>
                   <Link className={`${location.pathname === '/addnewproduct' ? 'orange-font' : ''} nav-link`} to="/addnewproduct"><span className='h5'>Add Product</span></Link>
