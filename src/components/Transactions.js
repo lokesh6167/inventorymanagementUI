@@ -41,6 +41,7 @@ function Transactions() {
         const filterTillDateObj = new Date(filterTillDate);
         const filteredTransactions = transactions.filter((transaction) => {
             const formattedTransactionDate = new Date(transaction.dateOfTransaction);
+            formattedTransactionDate.setHours(0, 0, 0, 0);
 
             if (filterWareHouseCode && !filterWareHouseCode.every(wareHouseCodeFiltered => transaction.wareHouseCode === wareHouseCodeFiltered.code)) {
                 return false;

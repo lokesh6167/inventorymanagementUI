@@ -22,7 +22,11 @@ function StockOutflow() {
     const [selectedProductName, setSelectedProductName] = useState("");
     const [invoiceNumber, setInvoiceNumber] = useState("");
     const [soldQuantity, setSoldQuantity] = useState("");
-    const [soldDate, setSoldDate] = useState(new Date());
+    const [soldDate, setSoldDate] = useState(() => {
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+        return currentDate;
+    });
     const [errors, setErrors] = useState({ wareHouseCode: "", productGroup: "", productName: "", invoiceNumber: "", soldDate: "", soldQuantity: "" });
     const matchedProductGroups = (product) => {
         if (selectedWareHouse && selectedWareHouse.code === product.wareHouseCode)

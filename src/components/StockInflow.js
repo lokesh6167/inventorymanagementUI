@@ -24,8 +24,13 @@ function StockInflow() {
   const [selectedProductName, setSelectedProductName] = useState([]);
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [purchasedQuantity, setPurchasedQuantity] = useState("");
-  const [purchasedDate, setPurchasedDate] = useState(new Date());
+  const [purchasedDate, setPurchasedDate] = useState(() => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    return currentDate;
+  });
   const [errors, setErrors] = useState({});
+
   const matchedProductGroups = (product) => {
     if (selectedWareHouse && selectedWareHouse.code === product.wareHouseCode)
       return true;
