@@ -93,7 +93,9 @@
         size: portrait;
         margin: 1em;
       }
-      
+      @page :header {
+        display: none;
+      }
     @page :footer {
         display: none;
       }
