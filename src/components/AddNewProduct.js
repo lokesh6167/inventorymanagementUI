@@ -121,7 +121,7 @@ function AddNewProduct() {
                                             <tr>
                                                 <th className="text-center" colSpan={2}>New Product Details</th>
                                             </tr>
-                                            <tr>
+                                            <tr className='exclude-from-print'>
                                                 <th>Category</th>
                                                 <th>Value</th>
                                             </tr>

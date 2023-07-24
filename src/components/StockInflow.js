@@ -156,8 +156,16 @@ function StockInflow() {
                     </thead>
                     <tbody>
                       <tr>
+                        <td>Purchased Date</td>
+                        <td>{moment(orderResponse.purchasedDate).format("DD-MMM-YYYY")}</td>
+                      </tr>
+                      <tr>
                         <td>Ware House Code</td>
                         <td>{orderResponse.wareHouseCode}</td>
+                      </tr>
+                      <tr>
+                        <td>Invoice Number</td>
+                        <td>{orderResponse.invoiceNumber}</td>
                       </tr>
                       <tr>
                         <td>Product Group</td>
@@ -166,14 +174,6 @@ function StockInflow() {
                       <tr>
                         <td>Product Name</td>
                         <td>{orderResponse.productItem}</td>
-                      </tr>
-                      <tr>
-                        <td>Invoice Number</td>
-                        <td>{orderResponse.invoiceNumber}</td>
-                      </tr>
-                      <tr>
-                        <td>Sold Date</td>
-                        <td>{moment(orderResponse.purchasedDate).format("DD-MMM-YYYY")}</td>
                       </tr>
                       <tr>
                         <td>Sold Quantity</td>
@@ -213,6 +213,13 @@ function StockInflow() {
             </div>
           </div>
           <div class="form-group row m-3 ">
+            <label for="invoicenumber" class="col-sm-4 col-form-label">Invoice Number<span className="required-field">*</span></label>
+            <div class="col-sm-8">
+              <InputText id="invoicenumber" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} className="w-full md:w-14rem form-field-generic-size" />
+              {errors.invoiceNumber && <small className="p-error display-block">{errors.invoiceNumber}.</small>}
+            </div>
+          </div>
+          <div class="form-group row m-3 ">
             <label for="productGroup" class="col-sm-4 col-form-label">Product Group<span className="required-field">*</span></label>
             <div class="col-sm-8">
               <Dropdown value={selectedProductGroup} onChange={(e) => setSelectedProductGroup(e.value)} options={productGroups} optionLabel="name"
@@ -226,13 +233,6 @@ function StockInflow() {
               <Dropdown value={selectedProductName} onChange={(e) => setSelectedProductName(e.value)} options={productNames} optionLabel="name"
                 placeholder="Select a Product Name" className="w-full md:w-14rem form-field-generic-size" />
               {errors.productName && <small className="p-error display-block">{errors.productName}.</small>}
-            </div>
-          </div>
-          <div class="form-group row m-3 ">
-            <label for="invoicenumber" class="col-sm-4 col-form-label">Invoice Number<span className="required-field">*</span></label>
-            <div class="col-sm-8">
-              <InputText id="invoicenumber" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} className="w-full md:w-14rem form-field-generic-size" />
-              {errors.invoiceNumber && <small className="p-error display-block">{errors.invoiceNumber}.</small>}
             </div>
           </div>
           <div class="form-group row m-3 ">
