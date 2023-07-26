@@ -43,13 +43,13 @@ function Transactions() {
             const formattedTransactionDate = new Date(transaction.dateOfTransaction);
             formattedTransactionDate.setHours(0, 0, 0, 0);
 
-            if (filterWareHouseCode && !filterWareHouseCode.every(wareHouseCodeFiltered => transaction.wareHouseCode === wareHouseCodeFiltered.code)) {
+            if (filterWareHouseCode && !filterWareHouseCode.some(wareHouseCodeFiltered => transaction.wareHouseCode === wareHouseCodeFiltered.code)) {
                 return false;
             }
             if (filterProductGroup && filterProductGroup.code && transaction.productGroup !== filterProductGroup.code) {
                 return false;
             }
-            if (filterProductName && !filterProductName.every(productNameFiltered => transaction.productItem === productNameFiltered.code)) {
+            if (filterProductName && !filterProductName.some(productNameFiltered => transaction.productItem === productNameFiltered.code)) {
                 return false;
             }
             if (filterTransactionType && filterTransactionType.code && transaction.transactionType !== filterTransactionType.code) {

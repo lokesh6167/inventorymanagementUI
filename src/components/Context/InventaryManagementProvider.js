@@ -1,5 +1,6 @@
 import React, { useState, createContext } from 'react';
 import { BASE_LOCAL_URL, BASE_PROD_URL } from '../Constants';
+import { useNavigate } from 'react-router-dom';
 
 export const InventaryManagementContext = createContext();
 
@@ -7,6 +8,7 @@ function InventaryManagementProvider({ children }) {
     const [products, setProducts] = useState([]);
     const [transactions, setTransactions] = useState([]);
     const [isBackendUp, setIsBackendUp] = useState(true);
+    const navigate = useNavigate();
 
     const fetchProducts = async () => {
         try {
@@ -16,6 +18,12 @@ function InventaryManagementProvider({ children }) {
         } catch (error) {
             setIsBackendUp(false);
         }
+    }
+    const validateUser = (credentials) => {
+        if (credentials.username === "sevvarusai" && credentials.password === "sevvarusaipassword") {
+            return localStorage.setItem("validUser", true);
+        }
+        return localStorage.setItem("validUser", false);
     }
 
     const addProducts = async (product) => {
@@ -66,8 +74,13 @@ function InventaryManagementProvider({ children }) {
         console.log("Print screen opened.");
         window.print();
     }
+    const logout = () => {
+        localStorage.setItem("validUser", false);
+        navigate('/');
+    }
+
     return (
-        <InventaryManagementContext.Provider value={{ products, transactions, fetchProducts, addProducts, updateProducts, fetchTransactions, takePrint, isBackendUp }}>
+        <InventaryManagementContext.Provider value={{ products, transactions, fetchProducts, addProducts, updateProducts, fetchTransactions, takePrint, isBackendUp, validateUser, logout }}>
             {children}
         </InventaryManagementContext.Provider>
     );

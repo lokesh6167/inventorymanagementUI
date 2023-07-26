@@ -15,6 +15,10 @@
 .no-border{
     border:none !important;
 }
+.user-login-container{
+    max-width: 600px;
+    margin: auto;
+}
 .current-stocks-container{
     max-width: 1200px;
     margin: auto;
@@ -75,6 +79,15 @@
 }
 .take-print-btn-add-product{
     margin-left: 15em;
+}
+.username-btn{
+    margin-left:20em;
+}
+.username-password-btns{
+    margin-right: 1em;
+}
+.username-pwd-width,.username-pwd-width input{
+    width:20em !important;
 }
 .server-down-container{
     max-width: 700px;
