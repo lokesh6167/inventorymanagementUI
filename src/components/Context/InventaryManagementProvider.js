@@ -20,7 +20,7 @@ function InventaryManagementProvider({ children }) {
         }
     }
     const validateUser = (credentials) => {
-        if (credentials.username === "sevvarusai" && credentials.password === "sevvarusaipassword") {
+        if (credentials.username === "sevgrandson" && credentials.password === "grandson123") {
             return localStorage.setItem("validUser", true);
         }
         return localStorage.setItem("validUser", false);
