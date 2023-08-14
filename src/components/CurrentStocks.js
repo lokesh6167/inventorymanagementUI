@@ -35,22 +35,14 @@ function CurrentStocks() {
     }
     const submitFilterStocks = (name) => {
         const filteredStocks = products.filter((product) => {
-            if (filterWareHouseCode) {
-                filterWareHouseCode.forEach(wareHouseCodeFiltered => {
-                    if (wareHouseCodeFiltered.code && product.wareHouseCode !== wareHouseCodeFiltered.code) {
-                        return false;
-                    }
-                })
+            if (filterWareHouseCode.length !== 0 && !filterWareHouseCode.some(wareHouseCodeFiltered => product.wareHouseCode === wareHouseCodeFiltered.code)) {
+                return false;
             }
             if (filterProductGroup && filterProductGroup.code && product.productGroup !== filterProductGroup.code) {
                 return false;
             }
-            if (filterProductName) {
-                filterProductName.forEach(productNameFiltered => {
-                    if (productNameFiltered.code && product.productName !== productNameFiltered.code) {
-                        return false;
-                    }
-                })
+            if (filterProductName.length !== 0 && !filterProductName.some(productNameFiltered => product.productItem === productNameFiltered.code)) {
+                return false;
             }
             return true;
         });

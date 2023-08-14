@@ -46,9 +46,9 @@ function AddNewProduct() {
     const isExistingProduct = () => {
         const existingProduct = products.find(
             (product) =>
-                product.wareHouseCode === wareHouseCode &&
-                product.productGroup === productGroup &&
-                product.productItem === productName
+                product.wareHouseCode.toLowerCase() === wareHouseCode.code.toLowerCase() &&
+                product.productGroup.toLowerCase() === productGroup.code.toLowerCase() &&
+                product.productItem.toLowerCase() === productName.code.toLowerCase()
         );
         if (existingProduct) {
             setErrors({
