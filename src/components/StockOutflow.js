@@ -84,9 +84,9 @@ function StockOutflow() {
         e.preventDefault();
         if (validate()) {
             const updatingProduct = products.find(product =>
-                product.wareHouseCode.toLowerCase() === selectedWareHouse.code.toLowerCase() &&
-                product.productGroup.toLowerCase() === selectedProductGroup.code.toLowerCase() &&
-                product.productItem.toLowerCase() === selectedProductName.code.toLowerCase()
+                product.wareHouseCode === selectedWareHouse.code &&
+                product.productGroup === selectedProductGroup.code &&
+                product.productItem === selectedProductName.code
             );
             if (updatingProduct) {
                 const currentStockQuantityOfUpdatingProduct = updatingProduct.stockQuantity;

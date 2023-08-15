@@ -86,9 +86,9 @@ function StockInflow() {
     if (validate()) {
       let updatingProductId = null;
       const updatingProduct = products.find(product =>
-        product.wareHouseCode.toLowerCase() === selectedWareHouse.code.toLowerCase() &&
-        product.productGroup.toLowerCase() === selectedProductGroup.code.toLowerCase() &&
-        product.productItem.toLowerCase() === selectedProductName.code.toLowerCase()
+        product.wareHouseCode === selectedWareHouse.code &&
+        product.productGroup === selectedProductGroup.code &&
+        product.productItem === selectedProductName.code
       );
       /*Adding 10hour offset to fix date issue in transactions*/
       const offsetPurchasedDate = new Date(purchasedDate.getTime() + 10 * 60 * 60 * 1000);

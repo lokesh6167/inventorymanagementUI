@@ -9,7 +9,7 @@ import ServerDownMessage from './ServerDownMessage';
 import { Dropdown } from 'primereact/dropdown';
 
 function AddNewProduct() {
-    const [wareHouseCode, setWareHouseCode] = useState('');
+    const [wareHouseCode, setWareHouseCode] = useState({});
     const [productGroup, setProductGroup] = useState('');
     const [productName, setProductName] = useState('');
     const [openingStockQuantity, setOpeningStockQuantity] = useState('');
@@ -45,10 +45,13 @@ function AddNewProduct() {
 
     const isExistingProduct = () => {
         const existingProduct = products.find(
-            (product) =>
-                product.wareHouseCode.toLowerCase() === wareHouseCode.code.toLowerCase() &&
-                product.productGroup.toLowerCase() === productGroup.code.toLowerCase() &&
-                product.productItem.toLowerCase() === productName.code.toLowerCase()
+            (product) => {
+                return (
+                    product.wareHouseCode === wareHouseCode.code &&
+                    product.productGroup === productGroup.toLowerCase() &&
+                    product.productItem === productName.toLowerCase()
+                )
+            }
         );
         if (existingProduct) {
             setErrors({
