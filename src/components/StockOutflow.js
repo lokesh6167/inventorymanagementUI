@@ -99,7 +99,7 @@ function StockOutflow() {
                         productGroup: selectedProductGroup.code,
                         productItem: selectedProductName.code,
                         invoiceNumber,
-                        transactionType: "Delivery",
+                        transactionType: "Outflow",
                         dateOfTransaction: moment(offsetSoldDate).toISOString(),
                         transactionQuantity: soldQuantity
                     }

@@ -98,7 +98,7 @@ function StockInflow() {
         productGroup: selectedProductGroup.code,
         productItem: selectedProductName.code,
         invoiceNumber,
-        transactionType: "Purchase",
+        transactionType: "Inflow",
         dateOfTransaction: moment(offsetPurchasedDate).toISOString(),
         transactionQuantity: purchasedQuantity
       }
