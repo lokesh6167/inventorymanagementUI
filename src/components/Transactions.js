@@ -125,6 +125,14 @@ function Transactions() {
         const formattedDate = moment(originalDate).format('DD-MMM-YYYY');
         return <span>{formattedDate}</span>;
     };
+    const transactionTypeFormat = (transaction) => {
+        if (transaction.transactionType === "Inflow") {
+            return "Purchase"
+        } else if (transaction.transactionType === "Outflow") {
+            return "Delivery"
+        }
+        return transaction.transactionType;
+    }
 
     return (
         <div className='transactions-container'>
@@ -190,7 +198,7 @@ function Transactions() {
                     <Column field="productGroup" header="Product Group"></Column>
                     <Column field="productItem" header="Product Name"></Column>
                     <Column field="invoiceNumber" header="Invoice Number"></Column>
-                    <Column field="transactionType" header="Transaction Type"></Column>
+                    <Column field="transactionType" header="Transaction Type" body={transactionTypeFormat}></Column>
                     <Column field="dateOfTransaction" header="Date of Transaction" body={dateFormat}></Column>
                     <Column field="transactionQuantity" header="Transaction Quantity"></Column>
                 </DataTable>

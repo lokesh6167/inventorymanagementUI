@@ -48,8 +48,8 @@ function AddNewProduct() {
             (product) => {
                 return (
                     product.wareHouseCode === wareHouseCode.code &&
-                    product.productGroup === productGroup.toLowerCase() &&
-                    product.productItem === productName.toLowerCase()
+                    product.productGroup === productGroup.trim().toLowerCase() &&
+                    product.productItem === productName.trim().toLowerCase()
                 )
             }
         );
@@ -71,8 +71,8 @@ function AddNewProduct() {
         if (isValidate()) {
             if (!isExistingProduct()) {
                 const payload = {
-                    productGroup: productGroup.toLowerCase(),
-                    productItem: productName.toLowerCase(),
+                    productGroup: productGroup.trim().toLowerCase(),
+                    productItem: productName.trim().toLowerCase(),
                     wareHouseCode: wareHouseCode.code,
                     stockQuantity: openingStockQuantity,
                 };
