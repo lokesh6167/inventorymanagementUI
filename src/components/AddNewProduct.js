@@ -85,6 +85,7 @@ function AddNewProduct() {
                     productItem: '',
                     openingStockQuantity: '',
                 });
+                handleReset();
             }
         }
     };

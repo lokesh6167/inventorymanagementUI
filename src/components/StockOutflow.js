@@ -110,6 +110,7 @@ function StockOutflow() {
                     setOrderResponse(outFlowOrderData);
                     setErrors({ wareHouseCode: "", productGroup: "", productName: "", soldDate: "", soldQuantity: '' });
                     fetchTransactions();
+                    handleReset();
                 } else {
                     setErrors({
                         ...errors,

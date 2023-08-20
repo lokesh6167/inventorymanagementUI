@@ -108,6 +108,7 @@ function StockInflow() {
       inFlowOrderData["purchasedDate"] = purchasedDate;
       setOrderResponse(inFlowOrderData);
       fetchTransactions(); /*fetching products to have latest products after updating the products */
+      handleReset();
     }
   }
   const addAnotherInflow = () => {
