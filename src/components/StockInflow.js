@@ -178,7 +178,7 @@ function StockInflow() {
                         <td>{orderResponse.productItem}</td>
                       </tr>
                       <tr>
-                        <td>Sold Quantity</td>
+                        <td>Purchased Quantity</td>
                         <td>{orderResponse.purchasedQuantity}</td>
                       </tr>
                       <tr>

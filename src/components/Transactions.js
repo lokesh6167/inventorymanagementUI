@@ -23,6 +23,7 @@ function Transactions() {
     const [filterTillDate, setFilterTillDate] = useState(null);
     const [filterTransactionType, setFilterTransactionType] = useState(null);
     const [filteredTransactionsFlag, setFilteredTransactionsFlag] = useState(false);
+    const [descSortedTransactions, setDescSortedTransactions] = useState([]);
 
     const dialogFuncMap = {
         'filterTransactions': setShowFilterOptionsDialog
@@ -52,8 +53,10 @@ function Transactions() {
             if (filterProductName.length !== 0 && !filterProductName.some(productNameFiltered => transaction.productItem === productNameFiltered.code)) {
                 return false;
             }
-            if (filterTransactionType && filterTransactionType.code && transaction.transactionType !== filterTransactionType.code) {
-                return false;
+            if (filterTransactionType && filterTransactionType.code) {
+                let filteredTransactionTypeValue = filterTransactionType.code === "Purchase" ? "Inflow" : "Outflow";
+                if (transaction.transactionType !== filteredTransactionTypeValue)
+                    return false;
             }
             if (filterFromDate && formattedTransactionDate < filterFromDateObj) {
                 return false;
@@ -92,6 +95,15 @@ function Transactions() {
     useEffect(() => {
         fetchTransactions();
     }, []);
+
+    useEffect(() => {
+        const sortedTransactions = transactions.sort((a, b) => {
+            const dateA = new Date(a.dateOfTransaction);
+            const dateB = new Date(b.dateOfTransaction);
+            return dateB - dateA;
+        });
+        setDescSortedTransactions(sortedTransactions);
+    }, [transactions])
 
     if (!isBackendUp) {
         return <ServerDownMessage />;
@@ -192,7 +204,7 @@ function Transactions() {
             {filteredTransactionsFlag && <h4>Filtered Transactions : </h4>}
             <Divider className='exclude-from-print' />
             <div className="card table-fit-content">
-                <DataTable value={filteredTransactionsFlag ? filteredTransactions : transactions} tableStyle={{ minWidth: '50rem' }}>
+                <DataTable value={filteredTransactionsFlag ? filteredTransactions : descSortedTransactions} tableStyle={{ minWidth: '50rem' }}>
                     <Column field="id" header="Serial No."></Column>
                     <Column field="wareHouseCode" header="WareHouse Code"></Column>
                     <Column field="productGroup" header="Product Group"></Column>
