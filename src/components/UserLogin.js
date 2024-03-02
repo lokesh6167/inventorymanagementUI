@@ -14,7 +14,7 @@ const UserLogin = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const validUser = localStorage.getItem('validUser');
+        const validUser = sessionStorage.getItem('validUser');
         if (validUser === 'true') {
             // Redirect to the default dashboard or any other protected route
             navigate('/currentstocks');
@@ -27,7 +27,7 @@ const UserLogin = () => {
             password,
         };
         validateUser(credentials);
-        if (localStorage.getItem('validUser') === 'true') {
+        if (sessionStorage.getItem('validUser') === 'true') {
             setError('');
             navigate('/currentstocks');
         } else {
