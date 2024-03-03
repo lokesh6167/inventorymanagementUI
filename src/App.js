@@ -8,8 +8,7 @@ import { Button } from 'primereact/button';
 function App({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, isBackendUp } = useContext(InventaryManagementContext);
-
+  const { logout, isBackendUp, toastRef } = useContext(InventaryManagementContext);
   useEffect(() => {
     if (!isBackendUp) {
       navigate('/serverdown');
@@ -48,7 +47,9 @@ function App({ children }) {
                   </li>
                 </ul>
               </div>
-              <Button onClick={logout} label="Logout" severity="secondary" raised />
+              <>{sessionStorage.getItem("adminUser") === "true" && <span className='h5 lead' style={{ fontWeight: 'bold', margin: '0px 35px' }}>Admin User</span>}
+                <Button onClick={logout} label="Logout" severity="secondary" raised />
+              </>
             </nav>
           </div>
         </header>

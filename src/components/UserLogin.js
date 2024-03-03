@@ -31,7 +31,7 @@ const UserLogin = () => {
             setError('');
             navigate('/currentstocks');
         } else {
-            setError('Wrong Credentials. Please enter correct credentials.');
+            setError('Incorrect credentials. Please enter correct credentials.');
         }
     };
     const handleReset = () => {

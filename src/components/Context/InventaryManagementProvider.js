@@ -1,7 +1,7 @@
-import React, { useState, createContext } from 'react';
+import React, { useState, useRef, createContext } from 'react';
 import { BASE_PROD_URL, BASE_LOCAL_URL } from '../Constants';
 import { useNavigate } from 'react-router-dom';
-
+import { Toast } from 'primereact/toast'
 export const InventaryManagementContext = createContext();
 
 function InventaryManagementProvider({ children }) {
@@ -9,7 +9,7 @@ function InventaryManagementProvider({ children }) {
     const [transactions, setTransactions] = useState([]);
     const [isBackendUp, setIsBackendUp] = useState(true);
     const navigate = useNavigate();
-
+    const toastRef = useRef(null);
     const fetchProducts = async () => {
         try {
             const response = await fetch(`${BASE_LOCAL_URL}getProducts`);
@@ -19,11 +19,22 @@ function InventaryManagementProvider({ children }) {
             setIsBackendUp(false);
         }
     }
+    const showToast = (severity, message) => {
+        toastRef.current.show({ severity: severity, summary: severity.toUpperCase(), detail: message, life: 2000 });
+    }
     const validateUser = (credentials) => {
         if (credentials.username === "sevgrandson" && credentials.password === "grandson123") {
-            return sessionStorage.setItem("validUser", true);
+            sessionStorage.setItem("validUser", true);
+            sessionStorage.setItem("adminUser", false);
+            showToast("success", "Login success!!");
+        } else if (credentials.username === "varusai" && credentials.password === "varusai123") {
+            sessionStorage.setItem("validUser", true);
+            sessionStorage.setItem("adminUser", true);
+            showToast("success", "Login success!!");
+        } else {
+            sessionStorage.setItem("validUser", false);
+            showToast("error", "Login failed. Please enter correct username & password.");
         }
-        return sessionStorage.setItem("validUser", false);
     }
 
     const addProducts = async (product) => {
@@ -36,10 +47,12 @@ function InventaryManagementProvider({ children }) {
                 }
             });
             const addProductData = await response.json();
-            console.log(addProductData);
+            showToast("success", "New product has been successfully added.");
+            // console.log(addProductData);
             return addProductData;
         } catch (error) {
             setIsBackendUp(false);
+            showToast("error", "Oops..Something went wrong. Please try again or reach support team.");
         }
     }
     const updateProducts = async (id, transaction) => {
@@ -53,11 +66,15 @@ function InventaryManagementProvider({ children }) {
                     "Content-type": "application/json; charset=UTF-8"
                 }
             });
+            if (response.status === 200) {
+                showToast("success", "Transaction successful.");
+            }
             const updateProductData = await response.json();
-            console.log(updateProductData);
+            // console.log(updateProductData);
             return updateProductData;
         } catch (error) {
             setIsBackendUp(false);
+            showToast("error", "Oops..Something went wrong. Please try again or reach support team.");
         }
     }
     const updateTransaction = async (product_id, current_stock, transaction) => {
@@ -74,11 +91,13 @@ function InventaryManagementProvider({ children }) {
             });
             if (response.status === 200) {
                 fetchTransactions();
+                showToast("success", "Transaction has been edited successfully.");
             }
             const updatedTransaction = await response.json();
-            console.log("Updated Transaction info", updatedTransaction);
+            // console.log("Updated Transaction info", updatedTransaction);
         } catch (error) {
             setIsBackendUp(false);
+            showToast("error", "Oops..Something went wrong. Please try again or reach support team.");
         }
     }
 
@@ -88,7 +107,7 @@ function InventaryManagementProvider({ children }) {
             deleteURL.searchParams.append("product_id", product_id);
             deleteURL.searchParams.append("current_stock", current_stock);
             const response = await fetch(deleteURL, {
-                method: "PUT",
+                method: "DELETE",
                 body: JSON.stringify(transaction),
                 headers: {
                     "Content-type": "application/json; charset=UTF-8"
@@ -96,9 +115,12 @@ function InventaryManagementProvider({ children }) {
             });
             if (response.status === 200) {
                 fetchTransactions();
+                showToast("success", "Transaction has been deleted successfully.");
+                // console.log("Transaction has been deleted..");
             }
         } catch (error) {
             setIsBackendUp(false);
+            showToast("error", "Oops..Something went wrong. Please try again or reach support team.");
         }
     }
 
@@ -109,11 +131,12 @@ function InventaryManagementProvider({ children }) {
             setTransactions(transactionsData);
         } catch (error) {
             setIsBackendUp(false);
+            showToast("error", "Oops..Something went wrong. Please try again or reach support team.");
         }
     }
 
     const takePrint = () => {
-        console.log("Print screen opened.");
+        // console.log("Print screen opened.");
         window.print();
     }
     const logout = () => {
@@ -122,8 +145,9 @@ function InventaryManagementProvider({ children }) {
     }
 
     return (
-        <InventaryManagementContext.Provider value={{ products, transactions, fetchProducts, addProducts, updateProducts, fetchTransactions, updateTransaction, deleteTransaction, takePrint, isBackendUp, validateUser, logout }}>
+        <InventaryManagementContext.Provider value={{ toastRef, showToast, products, transactions, fetchProducts, addProducts, updateProducts, fetchTransactions, updateTransaction, deleteTransaction, takePrint, isBackendUp, validateUser, logout }}>
             {children}
+            <Toast ref={toastRef} />
         </InventaryManagementContext.Provider>
     );
 }

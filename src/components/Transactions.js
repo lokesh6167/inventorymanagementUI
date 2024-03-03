@@ -13,8 +13,7 @@ import { InputNumber } from 'primereact/inputnumber'
 import moment from 'moment';
 
 function Transactions() {
-
-    const { products, transactions, fetchTransactions, updateTransaction, deleteTransaction, takePrint, isBackendUp } = useContext(InventaryManagementContext);
+    const { products, transactions, fetchProducts, fetchTransactions, updateTransaction, deleteTransaction, takePrint, isBackendUp } = useContext(InventaryManagementContext);
     const [filteredTransactions, setFilteredTransactions] = useState(null);
     const [showFilterOptionsDialog, setShowFilterOptionsDialog] = useState(false);
     const [showEditTransactionDialog, setShowEditTransactionDialog] = useState(false);
@@ -35,7 +34,22 @@ function Transactions() {
         'filterTransactions': setShowFilterOptionsDialog,
         'editTransaction': setShowEditTransactionDialog,
         'deleteTransaction': setShowDeleteTransactionDialog
-    }
+    };
+    const isAdmin = sessionStorage.getItem("adminUser");
+
+    useEffect(() => {
+        fetchTransactions();
+        fetchProducts();
+    }, []);
+
+    useEffect(() => {
+        const sortedTransactions = transactions.sort((a, b) => {
+            const dateA = new Date(a.dateOfTransaction);
+            const dateB = new Date(b.dateOfTransaction);
+            return dateB - dateA;
+        });
+        setDescSortedTransactions(sortedTransactions);
+    }, [transactions]);
 
     const onClick = (name, position) => {
         dialogFuncMap[`${name}`](true);
@@ -87,12 +101,12 @@ function Transactions() {
             product.productItem === editingTransaction?.productItem
         );
         if ((editingTransaction?.transactionType === "Outflow" && updatingProduct?.stockQuantity + quantityTransferred >= editingTransaction?.transactionQuantity) || (editingTransaction?.transactionType === "Inflow")) {
-            const transactionPayload = { ...editingTransaction, dateOfTransaction: new Date(editingTransaction.dateOfTransaction).toISOString() }
+            const transactionPayload = { ...editingTransaction, dateOfTransaction: new Date(editingTransaction.dateOfTransaction).toISOString() };
             const currentStock = editingTransaction?.transactionType === "Outflow" ? updatingProduct?.stockQuantity + quantityTransferred - editingTransaction?.transactionQuantity : updatingProduct?.stockQuantity - quantityTransferred + editingTransaction?.transactionQuantity;
             updateTransaction(updatingProduct.id, currentStock, transactionPayload);
             onHide(name);
         } else {
-            setEditTransError("Editing with this quantity is incorrect as the delivery is more than the available stock..");
+            setEditTransError("Entered transaction quantity not available for Delivery --> Editing with this quantity is incorrect as the delivery is more than the available stock");
         }
     };
 
@@ -103,7 +117,10 @@ function Transactions() {
             product.productItem === deletingTransaction?.productItem
         );
 
-        const transactionPayload = { ...editingTransaction, dateOfTransaction: new Date(editingTransaction?.dateOfTransaction).toISOString() }
+        const transactionPayload = {
+            ...deletingTransaction,
+            dateOfTransaction: deletingTransaction?.dateOfTransaction ? new Date(deletingTransaction?.dateOfTransaction).toISOString() : undefined
+        }
         const currentStock = editingTransaction?.transactionType === "Outflow" ? updatingProduct?.stockQuantity + deletingTransaction?.transactionQuantity : updatingProduct?.stockQuantity - deletingTransaction?.transactionQuantity;
         deleteTransaction(updatingProduct.id, currentStock, transactionPayload);
         onHide(name);
@@ -141,22 +158,10 @@ function Transactions() {
         return (
             <div>
                 <Button label="No" icon="pi pi-times" onClick={() => onHide(name)} className="p-button-text" />
-                <Button label="Yes,Delete this transaction" icon="pi pi-check" onClick={() => submitDeleteTransaction(name)} autoFocus />
+                <Button label="Yes, delete this transaction" icon="pi pi-check" onClick={() => submitDeleteTransaction(name)} autoFocus />
             </div>
         )
     }
-    useEffect(() => {
-        fetchTransactions();
-    }, []);
-
-    useEffect(() => {
-        const sortedTransactions = transactions.sort((a, b) => {
-            const dateA = new Date(a.dateOfTransaction);
-            const dateB = new Date(b.dateOfTransaction);
-            return dateB - dateA;
-        });
-        setDescSortedTransactions(sortedTransactions);
-    }, [transactions])
 
     if (!isBackendUp) {
         return <ServerDownMessage />;
@@ -214,7 +219,6 @@ function Transactions() {
     const deleteButton = (transaction) => {
         return <Button icon="pi pi-times" severity="danger" aria-label="Cancel" onClick={() => handleDeleteTransaction(transaction)} />;
     }
-    // const deleteButton = <Button icon="pi pi-times" severity="danger" aria-label="Cancel" onClick={handleDeleteTransaction} />
 
     return (
         <div className='transactions-container'>
@@ -230,6 +234,7 @@ function Transactions() {
                 </div>
             </div>
             <Dialog header="Edit Transaction" visible={showEditTransactionDialog} style={{ width: '50vw' }} footer={renderEditFooter('editTransaction')} onHide={() => onHide('editTransaction')}>
+                <h6 className='lead'><strong>Note: </strong>Based on the edit in transaction quantity/type with this transaction, the current stock will be adjusted automatically.</h6>
                 <div class="form-group row m-3 ">
                     <label for="warehousecode" class="col-sm-4 col-form-label">Warehouse Code</label>
                     <div class="col-sm-8 p-2">
@@ -259,7 +264,10 @@ function Transactions() {
                     <div class="col-sm-8">
                         <Dropdown id="transactionType"
                             value={{ name: transactionTypeFormat(editingTransaction), code: transactionTypeFormat(editingTransaction) }}
-                            onChange={(e) => setEditingTransaction({ ...editingTransaction, transactionType: e.value === "Purchase" ? "Inflow" : "Outflow" })}
+                            onChange={(e) => {
+                                // console.log(e.value);
+                                setEditingTransaction(prevEditingTransaction => ({ ...prevEditingTransaction, transactionType: e.value.code === "Purchase" ? "Inflow" : "Outflow" }));
+                            }}
                             options={transactionTypes}
                             optionLabel="name"
                             placeholder="Select a Transaction Type"
@@ -278,7 +286,7 @@ function Transactions() {
                         <InputNumber
                             id="transactionQuantity"
                             value={editingTransaction?.transactionQuantity}
-                            onValueChange={(e) => setEditingTransaction({ ...editingTransaction, transactionQuantity: e.target.value })}
+                            onValueChange={(e) => setEditingTransaction(prevEditingTransaction => ({ ...prevEditingTransaction, transactionQuantity: e.target.value }))}
                             min={0}
                             mode="decimal"
                             className="w-full md:w-14rem form-field-generic-size"
@@ -289,6 +297,7 @@ function Transactions() {
                 </div>
             </Dialog>
             <Dialog header="Are you sure want to delete this transaction?" visible={showDeleteTransactionDialog} style={{ width: '50vw' }} footer={renderDeleteFooter('deleteTransaction')} onHide={() => onHide('deleteTransaction')}>
+                <h6 className='lead'><strong>Note: </strong>On deletion of this transaction, the current stock will be adjusted automatically.</h6>
             </Dialog>
             <Dialog header="Filter Transactions" visible={showFilterOptionsDialog} style={{ width: '50vw' }} footer={renderFilterFooter('filterTransactions')} onHide={() => onHide('filterTransactions')}>
                 <div class="form-group row m-3 ">
@@ -344,8 +353,8 @@ function Transactions() {
                     <Column field="transactionType" header="Transaction Type" body={transactionTypeFormat}></Column>
                     <Column field="dateOfTransaction" header="Date of Transaction" body={dateFormat}></Column>
                     <Column field="transactionQuantity" header="Transaction Quantity"></Column>
-                    <Column field="editTransaction" header="Edit" body={editButton}></Column>
-                    <Column field="deleteTransaction" header="Delete" body={deleteButton}></Column>
+                    {isAdmin === "true" && <Column field="editTransaction" header="Edit" body={editButton}></Column>}
+                    {isAdmin === "true" && <Column field="deleteTransaction" header="Delete" body={deleteButton}></Column>}
                 </DataTable>
             </div>
         </div>
