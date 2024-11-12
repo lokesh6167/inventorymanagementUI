@@ -12,7 +12,7 @@ function InventaryManagementProvider({ children }) {
     const toastRef = useRef(null);
     const fetchProducts = async () => {
         try {
-            const response = await fetch(`${BASE_LOCAL_URL}getProducts`);
+            const response = await fetch(`${BASE_PROD_URL}getProducts`);
             const productsData = await response.json();
             setProducts(productsData);
         } catch (error) {
@@ -39,7 +39,7 @@ function InventaryManagementProvider({ children }) {
 
     const addProducts = async (product) => {
         try {
-            const response = await fetch(`${BASE_LOCAL_URL}addNewProducts`, {
+            const response = await fetch(`${BASE_PROD_URL}addNewProducts`, {
                 method: "POST",
                 body: JSON.stringify(product),
                 headers: {
@@ -57,7 +57,7 @@ function InventaryManagementProvider({ children }) {
     }
     const updateProducts = async (id, transaction) => {
         try {
-            const updateURL = new URL(`${BASE_LOCAL_URL}updateProducts`);
+            const updateURL = new URL(`${BASE_PROD_URL}updateProducts`);
             updateURL.searchParams.append("id", id);
             const response = await fetch(updateURL, {
                 method: "PUT",
@@ -79,7 +79,7 @@ function InventaryManagementProvider({ children }) {
     }
     const updateTransaction = async (product_id, current_stock, transaction) => {
         try {
-            const updateURL = new URL(`${BASE_LOCAL_URL}updateTransaction`);
+            const updateURL = new URL(`${BASE_PROD_URL}updateTransaction`);
             updateURL.searchParams.append("product_id", product_id);
             updateURL.searchParams.append("current_stock", current_stock);
             const response = await fetch(updateURL, {
@@ -103,7 +103,7 @@ function InventaryManagementProvider({ children }) {
 
     const deleteTransaction = async (product_id, current_stock, transaction) => {
         try {
-            const deleteURL = new URL(`${BASE_LOCAL_URL}deleteTransaction`);
+            const deleteURL = new URL(`${BASE_PROD_URL}deleteTransaction`);
             deleteURL.searchParams.append("product_id", product_id);
             deleteURL.searchParams.append("current_stock", current_stock);
             const response = await fetch(deleteURL, {
@@ -126,7 +126,7 @@ function InventaryManagementProvider({ children }) {
 
     const fetchTransactions = async () => {
         try {
-            const response = await fetch(`${BASE_LOCAL_URL}getTransactions`);
+            const response = await fetch(`${BASE_PROD_URL}getTransactions`);
             const transactionsData = await response.json();
             setTransactions(transactionsData);
         } catch (error) {

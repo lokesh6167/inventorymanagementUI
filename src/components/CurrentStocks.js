@@ -1,4 +1,5 @@
 import React, { useEffect, useContext, useState } from 'react';
+import * as XLSX from 'xlsx'; // Import XLSX for Excel export
 import { InventaryManagementContext } from './Context/InventaryManagementProvider';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -89,10 +90,53 @@ function CurrentStocks() {
         return <ServerDownMessage />;
     }
 
+    const exportToExcel = () => {
+        const data = filteredStocksFlag ? filteredStocks : products;
+
+        // Map 'id' field to 'Serial No.' and remove 'id' column
+        const dataWithSerialNumber = data.map((item) => ({
+            "Serial No.": item.id, // Map id to Serial No.
+            "WareHouse Code": item.wareHouseCode,
+            "Product Group": item.productGroup,
+            "Product Name": item.productItem,
+            "Current Stock Quantity": item.stockQuantity,
+        }));
+
+        // Create worksheet from data with Serial No. column
+        const worksheet = XLSX.utils.json_to_sheet(dataWithSerialNumber);
+
+        // Define column widths
+        const columnWidths = [
+            { wch: 10 }, // Serial No.
+            { wch: 30 }, // Warehouse Code
+            { wch: 30 }, // Product Group
+            { wch: 30 }, // Product Name
+            { wch: 15 }  // Stock Quantity
+        ];
+
+        // Apply column widths to the worksheet
+        worksheet["!cols"] = columnWidths;
+
+        // Create a new workbook and append the worksheet
+        const workbook = XLSX.utils.book_new();
+
+        // Format the filename to include today's date
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+        XLSX.utils.book_append_sheet(workbook, worksheet, `Current Stocks on ${dateStr}`);
+        const fileName = `Current Stocks information on ${dateStr}.xlsx`;
+
+        // Export the workbook as an Excel file
+        XLSX.writeFile(workbook, fileName);
+    };
+
+
+
     return (
         <div className='current-stocks-container table-fit-content'>
             <div className='transaction-headers'>
-                <p class="h2">Current Stocks</p>
+                <p className="h2">Current Stocks</p>
                 <div className='transactions_filter_and_print_buttons'>
                     <div className="p-jc-center p-mt-5 exclude-from-print">
                         <Button label="Filter Stocks" icon="pi pi-external-link" onClick={() => onClick('filterStocks')} />
@@ -100,26 +144,29 @@ function CurrentStocks() {
                     <div className="p-jc-center p-mt-5 exclude-from-print">
                         <Button label="Take Print" onClick={takePrint} />
                     </div>
+                    <div className="p-jc-center p-mt-5 exclude-from-print">
+                        <Button label="Export to Excel" icon="pi pi-file-excel" disabled={!(filteredStocksFlag ? filteredStocks?.length : products?.length)} onClick={exportToExcel} />
+                    </div>
                 </div>
             </div>
             <Dialog header="Filter Stocks" visible={showFilterOptionsDialog} style={{ width: '50vw' }} footer={renderFooter('filterStocks')} onHide={() => onHide('filterStocks')}>
-                <div class="form-group row m-3 ">
-                    <label for="warehousecode" class="col-sm-4 col-form-label">Warehouse Code</label>
-                    <div class="col-sm-8">
+                <div className="form-group row m-3 ">
+                    <label htmlFor="warehousecode" className="col-sm-4 col-form-label">Warehouse Code</label>
+                    <div className="col-sm-8">
                         <MultiSelect value={filterWareHouseCode} onChange={(e) => setFilterWareHouseCode(e.value)} options={warehouses} optionLabel="name" display="chip"
                             placeholder="Select a Warehouse" maxSelectedLabels={3} className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
-                <div class="form-group row m-3 ">
-                    <label for="productGroup" class="col-sm-4 col-form-label">Product Group</label>
-                    <div class="col-sm-8">
+                <div className="form-group row m-3 ">
+                    <label htmlFor="productGroup" className="col-sm-4 col-form-label">Product Group</label>
+                    <div className="col-sm-8">
                         <Dropdown value={filterProductGroup} onChange={(e) => setFilterProductGroup(e.value)} options={productGroups} optionLabel="name"
                             placeholder="Select a Product Group" className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
-                <div class="form-group row m-3 ">
-                    <label for="productName" class="col-sm-4 col-form-label">Product Name</label>
-                    <div class="col-sm-8">
+                <div className="form-group row m-3 ">
+                    <label htmlFor="productName" className="col-sm-4 col-form-label">Product Name</label>
+                    <div className="col-sm-8">
                         <MultiSelect value={filterProductName} onChange={(e) => setFilterProductName(e.value)} options={productNames} optionLabel="name" display="chip"
                             placeholder="Select a Product Name" maxSelectedLabels={3} className="w-full md:w-14rem form-field-generic-size" />
                     </div>
