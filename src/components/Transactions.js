@@ -22,7 +22,7 @@ function Transactions() {
     const [deletingTransaction, setDeletingTransaction] = useState(null);
     const [quantityTransferred, setQuantityTransferred] = useState(0);
     const [filterWareHouseCode, setFilterWareHouseCode] = useState([]);
-    const [filterProductGroup, setFilterProductGroup] = useState("");
+    const [filterProductGroup, setFilterProductGroup] = useState([]);
     const [filterProductName, setFilterProductName] = useState([]);
     const [filterFromDate, setFilterFromDate] = useState(null);
     const [filterTillDate, setFilterTillDate] = useState(null);
@@ -69,7 +69,7 @@ function Transactions() {
             if (filterWareHouseCode.length !== 0 && !filterWareHouseCode.some(wareHouseCodeFiltered => transaction.wareHouseCode === wareHouseCodeFiltered.code)) {
                 return false;
             }
-            if (filterProductGroup && filterProductGroup.code && transaction.productGroup !== filterProductGroup.code) {
+            if (filterProductGroup.length !== 0 && !filterProductGroup.some(productGroupFiltered => transaction.productGroup === productGroupFiltered.code)) {
                 return false;
             }
             if (filterProductName.length !== 0 && !filterProductName.some(productNameFiltered => transaction.productItem === productNameFiltered.code)) {
@@ -128,7 +128,7 @@ function Transactions() {
 
     const resetFilter = (name) => {
         setFilterWareHouseCode([]);
-        setFilterProductGroup("");
+        setFilterProductGroup([]);
         setFilterProductName([]);
         setFilterFromDate(null);
         setFilterTillDate(null);
@@ -181,7 +181,7 @@ function Transactions() {
     const matchedProductNames = (product) => {
         let flag = false;
         filterWareHouseCode.forEach(wareHouse => {
-            if (wareHouse.code === product.wareHouseCode && filterProductGroup.code === product.productGroup)
+            if (wareHouse.code === product.wareHouseCode && filterProductGroup.some(selectedProductGroup=>selectedProductGroup.code === product.productGroup))
                 flag = true;
         });
         return flag;
@@ -310,7 +310,7 @@ function Transactions() {
                 <div class="form-group row m-3 ">
                     <label for="productGroup" class="col-sm-4 col-form-label">Product Group</label>
                     <div class="col-sm-8">
-                        <Dropdown value={filterProductGroup} onChange={(e) => setFilterProductGroup(e.value)} options={productGroups} optionLabel="name"
+                        <MultiSelect value={filterProductGroup} onChange={(e) => setFilterProductGroup(e.value)} options={productGroups} optionLabel="name" display="chip"
                             placeholder="Select a Product Group" className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>

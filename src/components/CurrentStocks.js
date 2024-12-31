@@ -16,7 +16,7 @@ function CurrentStocks() {
     const [filteredStocks, setFilteredStocks] = useState(null);
     const [showFilterOptionsDialog, setShowFilterOptionsDialog] = useState(false);
     const [filterWareHouseCode, setFilterWareHouseCode] = useState([]);
-    const [filterProductGroup, setFilterProductGroup] = useState("");
+    const [filterProductGroup, setFilterProductGroup] = useState([]);
     const [filterProductName, setFilterProductName] = useState([]);
 
     useEffect(() => {
@@ -39,7 +39,7 @@ function CurrentStocks() {
             if (filterWareHouseCode.length !== 0 && !filterWareHouseCode.some(wareHouseCodeFiltered => product.wareHouseCode === wareHouseCodeFiltered.code)) {
                 return false;
             }
-            if (filterProductGroup && filterProductGroup.code && product.productGroup !== filterProductGroup.code) {
+            if (filterProductGroup.length !== 0 && !filterProductGroup.some(productGroupFiltered => product.productGroup === productGroupFiltered.code)) {
                 return false;
             }
             if (filterProductName.length !== 0 && !filterProductName.some(productNameFiltered => product.productItem === productNameFiltered.code)) {
@@ -53,7 +53,7 @@ function CurrentStocks() {
     }
     const resetFilter = (name) => {
         setFilterWareHouseCode([]);
-        setFilterProductGroup("");
+        setFilterProductGroup([]);
         setFilterProductName([]);
         setFilteredStocksFlag(false);
     }
@@ -77,7 +77,7 @@ function CurrentStocks() {
     const matchedProductNames = (product) => {
         let flag = false;
         filterWareHouseCode.forEach(wareHouse => {
-            if (wareHouse.code === product.wareHouseCode && filterProductGroup.code === product.productGroup)
+            if (wareHouse.code === product.wareHouseCode && filterProductGroup.some(selectedProductGroup => selectedProductGroup.code === product.productGroup))
                 flag = true;
         });
         return flag;
@@ -160,7 +160,7 @@ function CurrentStocks() {
                 <div className="form-group row m-3 ">
                     <label htmlFor="productGroup" className="col-sm-4 col-form-label">Product Group</label>
                     <div className="col-sm-8">
-                        <Dropdown value={filterProductGroup} onChange={(e) => setFilterProductGroup(e.value)} options={productGroups} optionLabel="name"
+                        <MultiSelect value={filterProductGroup} onChange={(e) => setFilterProductGroup(e.value)} options={productGroups} optionLabel="name" display="chip"
                             placeholder="Select a Product Group" className="w-full md:w-14rem form-field-generic-size" />
                     </div>
                 </div>
