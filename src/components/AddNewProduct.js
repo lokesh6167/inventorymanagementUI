@@ -65,7 +65,7 @@ function AddNewProduct() {
     const addAnotherNewProduct = () => {
         setAddedProductFlag(!addedProductFlag);
     };
-    const warehouses = [{ name: "Kochadai", code: "Kochadai" }, { name: "Nagamalai Padukottai", code: "Nagamalai Padukottai" }, { name: "Head office", code: "Head office" }]
+    const warehouses = [{ name: "Kochadai", code: "Kochadai" }, { name: "Nagamalai Pudukottai", code: "Nagamalai Pudukottai" }, { name: "Head office", code: "Head office" },{ name: "Hues of Clays", code: "Hues of Clays" }]
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isValidate()) {
