@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <Package Name="SEVGrandsonInventoryManagement" 
+           Manufacturer="S.E.V Grandson" 
+           Version="1.0.0.0" 
+           Language="1033" 
+           Codepage="1252">
+    <Media Id="1" Cabinet="InventoryApp.cab" EmbedCab="yes" />
+  </Package>
+
+  <Feature Id="ProductFeature" Title="S.E.V Grandson Inventory Management" Level="1">
+    <ComponentRef Id="MainExecutable" />
+    <ComponentRef Id="JavaRuntime" />
+    <ComponentRef Id="AppFiles" />
+  </Feature>
+
+  <InstallScope Id="perMachine" />
+  <Package InstallScope="perMachine" />
+
+  <Media Id="1" Cabinet="cab1.cab" EmbedCab="yes" />
+  <Directory Id="TARGETDIR" Name="SourceDir">
+    <Directory Id="ProgramFilesFolder">
+      <Directory Id="INSTALLFOLDER" Name="SEV Grandson Inventory" />
+    </Directory>
+    <Directory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="S.E.V Grandson" />
+    </Directory>
+    <Directory Id="DesktopFolder" Name="Desktop" />
+  </Directory>
+
+  <Feature Id="JREFeature" Title="Java Runtime Environment 22" Level="1">
+    <ComponentRef Id="JavaComponent" />
+  </Feature>
+</Configuration>

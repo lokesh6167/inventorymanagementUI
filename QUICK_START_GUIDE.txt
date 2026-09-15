@@ -1,0 +1,138 @@
+# Quick Start Guide - S.E.V Grandson Inventory Management
+
+## System Requirements
+- Windows 10 or later
+- 2GB RAM minimum
+- 500MB free disk space
+- Internet connection (for first installation only)
+
+## Installation
+
+### Step 1: Download
+- Download `InventoryManagementSystem-Setup.exe`
+
+### Step 2: Run Installer
+- Double-click the file
+- Click "Next" to begin installation
+- If Java is not installed, you'll be prompted to install it (automatic)
+- Wait for installation to complete (2-5 minutes)
+
+### Step 3: Start Application
+- Double-click the desktop shortcut: **S.E.V Grandson Inventory**
+- Or find it in Start Menu > S.E.V Grandson > Inventory Management
+- Wait 10-15 seconds for the application to load
+
+## First Time Setup
+
+When you start the app for the first time:
+1. ✅ Backend starts automatically (port 8080)
+2. ✅ Database is created locally
+3. ✅ Tables are initialized
+4. ✅ Frontend opens in a window
+5. ✅ You're ready to use!
+
+## Using the Application
+
+### Current Stock Tab
+- View all your products
+- See warehouse and quantity information
+
+### Purchase Tab (Stock Inflow)
+- Add new stock to your inventory
+- Select product and enter quantity
+- Automatically updates stock levels
+
+### Delivery Tab (Stock Outflow)
+- Record deliveries/sales
+- Automatically reduces stock
+- Tracks invoice numbers
+
+### Add Product Tab
+- Add new products to inventory
+- Assign to warehouse
+- Set initial quantity
+
+### Transactions Tab
+- View all purchase and delivery history
+- See dates and quantities
+- Track inventory changes
+
+## Data Storage
+
+**Your data is stored locally on your computer:**
+```
+C:\Users\YourUsername\AppData\Local\inventory_data\
+```
+
+**Important:**
+- Data survives app restarts ✅
+- Data survives computer restarts ✅
+- No internet connection needed after installation ✅
+- No data sent to cloud ✅
+- Completely private and secure ✅
+
+## Troubleshooting
+
+### Application won't start
+1. Ensure Java is installed: Open Command Prompt and type `java -version`
+2. Try restarting your computer
+3. Check if another instance is running (look in Task Manager)
+4. Uninstall and reinstall the application
+
+### Database errors
+1. Delete the `inventory_data` folder (you'll lose existing data)
+2. Restart the application
+3. It will recreate the database with fresh tables
+
+### Port 8080 is already in use
+1. Close any other applications using port 8080
+2. Or restart your computer
+3. Then start the Inventory Management app
+
+### Backup Your Data
+
+**Before updating or major changes:**
+1. Close the application
+2. Go to: `C:\Users\YourUsername\AppData\Local\inventory_data\`
+3. Copy the file: `inventary_management_system.mv.db`
+4. Save it to a safe location (USB drive, cloud storage, etc.)
+
+**To restore from backup:**
+1. Close the application
+2. Replace the database file in `inventory_data\` folder
+3. Restart the application
+
+## Uninstalling
+
+1. Go to Control Panel > Programs and Features
+2. Find "S.E.V Grandson Inventory Management"
+3. Click "Uninstall"
+4. Follow the wizard
+5. Your data is preserved in `AppData\Local\inventory_data\` folder
+
+**To completely remove all data:**
+1. Uninstall the application (as above)
+2. Delete `C:\Users\YourUsername\AppData\Local\inventory_data\` folder
+
+## Support
+
+For issues or questions:
+- Email: lokesh6167@gmail.com
+- Check the detailed guide: README_DESKTOP_APP.md
+
+## Features
+
+✅ Offline-first application (no internet required after install)
+✅ Local database with persistent storage
+✅ Fast response times
+✅ Intuitive user interface
+✅ Complete inventory tracking
+✅ Transaction history
+✅ Warehouse management
+✅ Automatic data backup support
+
+---
+
+**Version:** 1.0.0
+**Last Updated:** September 2026
+**© S.E.V Grandson 2026**
