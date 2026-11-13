@@ -9,7 +9,7 @@ import ServerDownMessage from './ServerDownMessage';
 import { Dropdown } from 'primereact/dropdown';
 
 function AddNewProduct() {
-    const [wareHouseCode, setWareHouseCode] = useState('');
+    const [wareHouseCode, setWareHouseCode] = useState({});
     const [productGroup, setProductGroup] = useState('');
     const [productName, setProductName] = useState('');
     const [openingStockQuantity, setOpeningStockQuantity] = useState('');
@@ -45,10 +45,13 @@ function AddNewProduct() {
 
     const isExistingProduct = () => {
         const existingProduct = products.find(
-            (product) =>
-                product.wareHouseCode === wareHouseCode &&
-                product.productGroup === productGroup &&
-                product.productItem === productName
+            (product) => {
+                return (
+                    product.wareHouseCode === wareHouseCode.code &&
+                    product.productGroup === productGroup.trim().toLowerCase() &&
+                    product.productItem === productName.trim().toLowerCase()
+                )
+            }
         );
         if (existingProduct) {
             setErrors({
@@ -62,14 +65,14 @@ function AddNewProduct() {
     const addAnotherNewProduct = () => {
         setAddedProductFlag(!addedProductFlag);
     };
-    const warehouses = [{ name: "Kochadai", code: "Kochadai" }, { name: "Nagamalai Padukottai", code: "Nagamalai Padukottai" }, { name: "Head office", code: "Head office" }]
+    const warehouses = [{ name: "Kochadai", code: "Kochadai" }, { name: "Nagamalai Pudukottai", code: "Nagamalai Pudukottai" }, { name: "Head office", code: "Head office" },{ name: "Hues of Clays", code: "Hues of Clays" }]
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isValidate()) {
             if (!isExistingProduct()) {
                 const payload = {
-                    productGroup: productGroup.toLowerCase(),
-                    productItem: productName.toLowerCase(),
+                    productGroup: productGroup.trim().toLowerCase(),
+                    productItem: productName.trim().toLowerCase(),
                     wareHouseCode: wareHouseCode.code,
                     stockQuantity: openingStockQuantity,
                 };
@@ -82,6 +85,7 @@ function AddNewProduct() {
                     productItem: '',
                     openingStockQuantity: '',
                 });
+                handleReset();
             }
         }
     };

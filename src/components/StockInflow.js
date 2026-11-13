@@ -12,7 +12,7 @@ import ServerDownMessage from './ServerDownMessage';
 
 
 function StockInflow() {
-  const { products, updateProducts, fetchProducts, takePrint, isBackendUp, transactions } = useContext(InventaryManagementContext);
+  const { products, updateProducts, fetchProducts, takePrint, isBackendUp, transactions, fetchTransactions } = useContext(InventaryManagementContext);
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -97,8 +97,8 @@ function StockInflow() {
         wareHouseCode: selectedWareHouse.code,
         productGroup: selectedProductGroup.code,
         productItem: selectedProductName.code,
-        invoiceNumber,
-        transactionType: "Purchase",
+        invoiceNumber: invoiceNumber.trim(),
+        transactionType: "Inflow",
         dateOfTransaction: moment(offsetPurchasedDate).toISOString(),
         transactionQuantity: purchasedQuantity
       }
@@ -107,6 +107,8 @@ function StockInflow() {
       inFlowOrderData["purchasedQuantity"] = purchasedQuantity;
       inFlowOrderData["purchasedDate"] = purchasedDate;
       setOrderResponse(inFlowOrderData);
+      fetchTransactions(); /*fetching products to have latest products after updating the products */
+      handleReset();
     }
   }
   const addAnotherInflow = () => {
@@ -176,7 +178,7 @@ function StockInflow() {
                         <td>{orderResponse.productItem}</td>
                       </tr>
                       <tr>
-                        <td>Sold Quantity</td>
+                        <td>Purchased Quantity</td>
                         <td>{orderResponse.purchasedQuantity}</td>
                       </tr>
                       <tr>

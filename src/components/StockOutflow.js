@@ -10,7 +10,7 @@ import Table from 'react-bootstrap/Table';
 import moment from 'moment';
 import ServerDownMessage from './ServerDownMessage';
 function StockOutflow() {
-    const { products, updateProducts, fetchProducts, takePrint, isBackendUp, transactions } = useContext(InventaryManagementContext);
+    const { products, updateProducts, fetchProducts, takePrint, isBackendUp, transactions, fetchTransactions } = useContext(InventaryManagementContext);
     useEffect(() => {
         fetchProducts();
     }, []);
@@ -98,8 +98,8 @@ function StockOutflow() {
                         wareHouseCode: selectedWareHouse.code,
                         productGroup: selectedProductGroup.code,
                         productItem: selectedProductName.code,
-                        invoiceNumber,
-                        transactionType: "Delivery",
+                        invoiceNumber: invoiceNumber.trim(),
+                        transactionType: "Outflow",
                         dateOfTransaction: moment(offsetSoldDate).toISOString(),
                         transactionQuantity: soldQuantity
                     }
@@ -109,6 +109,8 @@ function StockOutflow() {
                     outFlowOrderData["soldDate"] = soldDate;
                     setOrderResponse(outFlowOrderData);
                     setErrors({ wareHouseCode: "", productGroup: "", productName: "", soldDate: "", soldQuantity: '' });
+                    fetchTransactions();
+                    handleReset();
                 } else {
                     setErrors({
                         ...errors,
