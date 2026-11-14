@@ -7,6 +7,13 @@
   "build": {
     "appId": "com.sevgrandson.inventory",
     "productName": "SEV Grandson Inventory",
+    "directories": {
+      "app": ".",
+      "output": "dist"
+    },
+    "extraMetadata": {
+      "main": "electron-main.js"
+    },
     "files": [
       "build/**/*",
       "electron-main.js",
@@ -23,9 +30,6 @@
         "to": "jre"
       }
     ],
-    "directories": {
-      "output": "dist"
-    },
     "win": {
       "target": [
         {
