@@ -10,20 +10,19 @@ import Table from 'react-bootstrap/Table';
 import moment from 'moment';
 import ServerDownMessage from './ServerDownMessage';
 
-
 function StockInflow() {
   const { products, updateProducts, fetchProducts, takePrint, isBackendUp, transactions, fetchTransactions } = useContext(InventaryManagementContext);
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   const [orderCompletionStatus, setOrderCompletionStatus] = useState(false);
   const [orderResponse, setOrderResponse] = useState(null);
   const [selectedWareHouse, setSelectedWareHouse] = useState([]);
   const [selectedProductGroup, setSelectedProductGroup] = useState({});
   const [selectedProductName, setSelectedProductName] = useState([]);
-  const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [purchasedQuantity, setPurchasedQuantity] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [purchasedQuantity, setPurchasedQuantity] = useState('');
   const [purchasedDate, setPurchasedDate] = useState(() => {
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
@@ -35,52 +34,56 @@ function StockInflow() {
     if (selectedWareHouse && selectedWareHouse.code === product.wareHouseCode)
       return true;
     return false;
-  }
+  };
+
   const matchedProductNames = (product) => {
     if (selectedWareHouse && selectedWareHouse.code === product.wareHouseCode && selectedProductGroup && selectedProductGroup.code === product.productGroup)
       return true;
     return false;
-  }
-  const warehouses = [...new Set(products.map(product => product.wareHouseCode))].map(wareHouseCode => { return { name: wareHouseCode, code: wareHouseCode } });
-  const productGroups = [...new Set(products.filter(matchedProductGroups).map(product => product.productGroup))].map(productGroup => { return { name: productGroup, code: productGroup } });
-  const productNames = [...new Set(products.filter(matchedProductNames).map(product => product.productItem))].map(productItem => { return { name: productItem, code: productItem } });
+  };
+
+  const warehouses = [...new Set(products.map(product => product.wareHouseCode))].map(wareHouseCode => ({ name: wareHouseCode, code: wareHouseCode }));
+  const productGroups = [...new Set(products.filter(matchedProductGroups).map(product => product.productGroup))].map(productGroup => ({ name: productGroup, code: productGroup }));
+  const productNames = [...new Set(products.filter(matchedProductNames).map(product => product.productItem))].map(productItem => ({ name: productItem, code: productItem }));
+
   const validate = () => {
     let noErros = true;
     let errors = {};
     if (!(selectedWareHouse && selectedWareHouse.code)) {
-      errors.wareHouseCode = "Please select any ware house";
+      errors.wareHouseCode = 'Please select any ware house';
       noErros = false;
     }
     if (!(selectedProductGroup && selectedProductGroup.code)) {
-      errors.productGroup = "Please select any product group";
+      errors.productGroup = 'Please select any product group';
       noErros = false;
     }
     if (!(selectedProductName && selectedProductName.code)) {
-      errors.productName = "Please select any product name";
+      errors.productName = 'Please select any product name';
       noErros = false;
     }
     if (!invoiceNumber) {
-      errors.invoiceNumber = "Please enter invoice number";
+      errors.invoiceNumber = 'Please enter invoice number';
       noErros = false;
     } else {
       transactions.forEach(transaction => {
         if (transaction.invoiceNumber === invoiceNumber) {
-          errors.invoiceNumber = `Existing transaction on date ${moment(transaction.dateOfTransaction).format('DD-MMM-YYYY')} with same invoice number. Please proceed with new invoice number. For more details about transactions please check on transactions history..`;
+          errors.invoiceNumber = `Existing transaction on date ${moment(transaction.dateOfTransaction).format('DD-MMM-YYYY')} with same invoice number. Please proceed with new invoice number.`;
           noErros = false;
         }
-      })
+      });
     }
     if (!purchasedDate) {
-      errors.purchasedDate = "Please select purchased date";
+      errors.purchasedDate = 'Please select purchased date';
       noErros = false;
     }
     if (!purchasedQuantity) {
-      errors.purchasedQuantity = "Please enter purchased quantity"
+      errors.purchasedQuantity = 'Please enter purchased quantity';
       noErros = false;
     }
     setErrors(errors);
     return noErros;
-  }
+  };
+
   const handleStockInflow = async (e) => {
     e.preventDefault();
     if (validate()) {
@@ -90,7 +93,6 @@ function StockInflow() {
         product.productGroup === selectedProductGroup.code &&
         product.productItem === selectedProductName.code
       );
-      /*Adding 10hour offset to fix date issue in transactions*/
       const offsetPurchasedDate = new Date(purchasedDate.getTime() + 10 * 60 * 60 * 1000);
       if (updatingProduct) updatingProductId = updatingProduct.id;
       const inflowTransactionPayload = {
@@ -98,33 +100,36 @@ function StockInflow() {
         productGroup: selectedProductGroup.code,
         productItem: selectedProductName.code,
         invoiceNumber: invoiceNumber.trim(),
-        transactionType: "Inflow",
+        transactionType: 'Inflow',
         dateOfTransaction: moment(offsetPurchasedDate).toISOString(),
         transactionQuantity: purchasedQuantity
-      }
+      };
       const inFlowOrderData = await updateProducts(updatingProductId, inflowTransactionPayload);
-      inFlowOrderData["invoiceNumber"] = invoiceNumber;
-      inFlowOrderData["purchasedQuantity"] = purchasedQuantity;
-      inFlowOrderData["purchasedDate"] = purchasedDate;
+      inFlowOrderData['invoiceNumber'] = invoiceNumber;
+      inFlowOrderData['purchasedQuantity'] = purchasedQuantity;
+      inFlowOrderData['purchasedDate'] = purchasedDate;
       setOrderResponse(inFlowOrderData);
-      fetchTransactions(); /*fetching products to have latest products after updating the products */
+      fetchTransactions();
       handleReset();
     }
-  }
+  };
+
   const addAnotherInflow = () => {
-    setOrderCompletionStatus(!orderCompletionStatus);
-  }
+    setOrderCompletionStatus((current) => !current);
+  };
+
   const handleReset = () => {
     setSelectedWareHouse(null);
     setSelectedProductGroup(null);
     setSelectedProductName(null);
-    setInvoiceNumber("");
+    setInvoiceNumber('');
     setPurchasedDate(null);
-    setPurchasedQuantity("");
-  }
+    setPurchasedQuantity('');
+  };
+
   useEffect(() => {
     if (orderResponse) {
-      setOrderCompletionStatus(!orderCompletionStatus);
+      setOrderCompletionStatus((current) => !current);
     }
   }, [orderResponse]);
 
@@ -133,13 +138,13 @@ function StockInflow() {
   }
 
   return (
-    <div className={orderCompletionStatus ? "stock-inflow-transaction-completed-container" : "stock-inflow-container"}>
-      <p class="h2 exclude-from-print">Purchase</p>
+    <div className={orderCompletionStatus ? 'stock-inflow-transaction-completed-container' : 'stock-inflow-container'}>
+      <p className="h2 exclude-from-print">Purchase</p>
       <Divider className='exclude-from-print' />
       {orderCompletionStatus ?
         <>
           <div className="receipt-headings exclude-from-print">
-            <p class="h5 text-success">purchase transaction is successful. Please find the details of current transaction here</p>
+            <p className="h5 text-success">purchase transaction is successful. Please find the details of current transaction here</p>
             <Button label="Add another purchase transaction" onClick={addAnotherInflow} />
           </div>
           <div className="card flex justify-content-center print-no-border">
@@ -159,7 +164,7 @@ function StockInflow() {
                     <tbody>
                       <tr>
                         <td>Purchased Date</td>
-                        <td>{moment(orderResponse.purchasedDate).format("DD-MMM-YYYY")}</td>
+                        <td>{moment(orderResponse.purchasedDate).format('DD-MMM-YYYY')}</td>
                       </tr>
                       <tr>
                         <td>Ware House Code</td>
@@ -199,52 +204,52 @@ function StockInflow() {
         </>
         :
         <>
-          <div class="form-group row m-3 ">
-            <label for="purchaseddate" class="col-sm-4 col-form-label">Purchased Date<span className="required-field">*</span></label>
-            <div class="col-sm-8">
+          <div className="form-group row m-3 ">
+            <label htmlFor="purchaseddate" className="col-sm-4 col-form-label">Purchased Date<span className="required-field">*</span></label>
+            <div className="col-sm-8">
               <Calendar value={purchasedDate} onChange={(e) => setPurchasedDate(e.value)} dateFormat="dd/mm/yy" showIcon className="w-full md:w-14rem form-field-generic-size" />
               {errors.purchasedDate && <small className="p-error display-block">{errors.purchasedDate}.</small>}
             </div>
           </div>
-          <div class="form-group row m-3 ">
-            <label for="warehousecode" class="col-sm-4 col-form-label">Warehouse Code<span className="required-field">*</span></label>
-            <div class="col-sm-8">
+          <div className="form-group row m-3 ">
+            <label htmlFor="warehousecode" className="col-sm-4 col-form-label">Warehouse Code<span className="required-field">*</span></label>
+            <div className="col-sm-8">
               <Dropdown value={selectedWareHouse} onChange={(e) => setSelectedWareHouse(e.value)} options={warehouses} optionLabel="name"
                 placeholder="Select a Warehouse" className="w-full md:w-14rem form-field-generic-size" />
               {errors.wareHouseCode && <small className="p-error display-block">{errors.wareHouseCode}.</small>}
             </div>
           </div>
-          <div class="form-group row m-3 ">
-            <label for="invoicenumber" class="col-sm-4 col-form-label">Invoice Number<span className="required-field">*</span></label>
-            <div class="col-sm-8">
+          <div className="form-group row m-3 ">
+            <label htmlFor="invoicenumber" className="col-sm-4 col-form-label">Invoice Number<span className="required-field">*</span></label>
+            <div className="col-sm-8">
               <InputText id="invoicenumber" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} className="w-full md:w-14rem form-field-generic-size" />
               {errors.invoiceNumber && <small className="p-error display-block">{errors.invoiceNumber}.</small>}
             </div>
           </div>
-          <div class="form-group row m-3 ">
-            <label for="productGroup" class="col-sm-4 col-form-label">Product Group<span className="required-field">*</span></label>
-            <div class="col-sm-8">
+          <div className="form-group row m-3 ">
+            <label htmlFor="productGroup" className="col-sm-4 col-form-label">Product Group<span className="required-field">*</span></label>
+            <div className="col-sm-8">
               <Dropdown value={selectedProductGroup} onChange={(e) => setSelectedProductGroup(e.value)} options={productGroups} optionLabel="name"
                 placeholder="Select a Product Group" className="w-full md:w-14rem form-field-generic-size" />
               {errors.productGroup && <small className="p-error display-block">{errors.productGroup}.</small>}
             </div>
           </div>
-          <div class="form-group row m-3 ">
-            <label for="productName" class="col-sm-4 col-form-label">Product Name<span className="required-field">*</span></label>
-            <div class="col-sm-8">
+          <div className="form-group row m-3 ">
+            <label htmlFor="productName" className="col-sm-4 col-form-label">Product Name<span className="required-field">*</span></label>
+            <div className="col-sm-8">
               <Dropdown value={selectedProductName} onChange={(e) => setSelectedProductName(e.value)} options={productNames} optionLabel="name"
                 placeholder="Select a Product Name" className="w-full md:w-14rem form-field-generic-size" />
               {errors.productName && <small className="p-error display-block">{errors.productName}.</small>}
             </div>
           </div>
-          <div class="form-group row m-3 ">
-            <label for="purchasedquantity" class="col-sm-4 col-form-label">Purchased Quantity<span className="required-field">*</span></label>
-            <div class="col-sm-8">
+          <div className="form-group row m-3 ">
+            <label htmlFor="purchasedquantity" className="col-sm-4 col-form-label">Purchased Quantity<span className="required-field">*</span></label>
+            <div className="col-sm-8">
               <InputNumber id="purchasedquantity" value={purchasedQuantity} onValueChange={(e) => setPurchasedQuantity(e.target.value)} min={0} mode='decimal' className="w-full md:w-14rem form-field-generic-size" />
               {errors.purchasedQuantity && <small className="p-error display-block display-block">{errors.purchasedQuantity}.</small>}
             </div>
           </div>
-          <div class="form-group row m-3 ">
+          <div className="form-group row m-3 ">
             <div className="card flex justify-content-center gap-3 no-border">
               <Button label="Submit" onClick={handleStockInflow} />
               <Button label="Reset" severity="secondary" onClick={handleReset} />

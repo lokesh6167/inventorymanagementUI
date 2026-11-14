@@ -1,7 +1,8 @@
-import React, { useState, useRef, createContext } from 'react';
-import { BASE_PROD_URL, BASE_LOCAL_URL } from '../Constants';
+import React, { useState, useRef, createContext, useCallback } from 'react';
+import { BASE_PROD_URL } from '../Constants';
 import { useNavigate } from 'react-router-dom';
-import { Toast } from 'primereact/toast'
+import { Toast } from 'primereact/toast';
+
 export const InventaryManagementContext = createContext();
 
 function InventaryManagementProvider({ children }) {
@@ -10,7 +11,8 @@ function InventaryManagementProvider({ children }) {
     const [isBackendUp, setIsBackendUp] = useState(true);
     const navigate = useNavigate();
     const toastRef = useRef(null);
-    const fetchProducts = async () => {
+
+    const fetchProducts = useCallback(async () => {
         try {
             const response = await fetch(`${BASE_PROD_URL}getProducts`);
             const productsData = await response.json();
@@ -18,134 +20,151 @@ function InventaryManagementProvider({ children }) {
         } catch (error) {
             setIsBackendUp(false);
         }
-    }
-    const showToast = (severity, message) => {
-        toastRef.current.show({ severity: severity, summary: severity.toUpperCase(), detail: message, life: 2000 });
-    }
-    const validateUser = (credentials) => {
-        if (credentials.username === "sevgrandson" && credentials.password === "grandson123") {
-            sessionStorage.setItem("validUser", true);
-            sessionStorage.setItem("adminUser", false);
-            showToast("success", "Login success!!");
-        } else if (credentials.username === "varusai" && credentials.password === "varusai123") {
-            sessionStorage.setItem("validUser", true);
-            sessionStorage.setItem("adminUser", true);
-            showToast("success", "Login success!!");
-        } else {
-            sessionStorage.setItem("validUser", false);
-            showToast("error", "Login failed. Please enter correct username & password.");
-        }
-    }
+    }, []);
 
-    const addProducts = async (product) => {
+    const showToast = useCallback((severity, message) => {
+        if (toastRef.current) {
+            toastRef.current.show({ severity, summary: severity.toUpperCase(), detail: message, life: 2000 });
+        }
+    }, []);
+
+    const validateUser = useCallback((credentials) => {
+        if (credentials.username === 'sevgrandson' && credentials.password === 'grandson123') {
+            sessionStorage.setItem('validUser', true);
+            sessionStorage.setItem('adminUser', false);
+            showToast('success', 'Login success!!');
+        } else if (credentials.username === 'varusai' && credentials.password === 'varusai123') {
+            sessionStorage.setItem('validUser', true);
+            sessionStorage.setItem('adminUser', true);
+            showToast('success', 'Login success!!');
+        } else {
+            sessionStorage.setItem('validUser', false);
+            showToast('error', 'Login failed. Please enter correct username & password.');
+        }
+    }, [showToast]);
+
+    const addProducts = useCallback(async (product) => {
         try {
             const response = await fetch(`${BASE_PROD_URL}addNewProducts`, {
-                method: "POST",
+                method: 'POST',
                 body: JSON.stringify(product),
                 headers: {
-                    "Content-type": "application/json; charset=UTF-8"
+                    'Content-type': 'application/json; charset=UTF-8'
                 }
             });
             const addProductData = await response.json();
-            showToast("success", "New product has been successfully added.");
-            // console.log(addProductData);
+            showToast('success', 'New product has been successfully added.');
             return addProductData;
         } catch (error) {
             setIsBackendUp(false);
-            showToast("error", "Oops..Something went wrong. Please try again or reach support team.");
+            showToast('error', 'Oops..Something went wrong. Please try again or reach support team.');
         }
-    }
-    const updateProducts = async (id, transaction) => {
+    }, [showToast]);
+
+    const updateProducts = useCallback(async (id, transaction) => {
         try {
             const updateURL = new URL(`${BASE_PROD_URL}updateProducts`);
-            updateURL.searchParams.append("id", id);
+            updateURL.searchParams.append('id', id);
             const response = await fetch(updateURL, {
-                method: "PUT",
+                method: 'PUT',
                 body: JSON.stringify(transaction),
                 headers: {
-                    "Content-type": "application/json; charset=UTF-8"
+                    'Content-type': 'application/json; charset=UTF-8'
                 }
             });
             if (response.status === 200) {
-                showToast("success", "Transaction successful.");
+                showToast('success', 'Transaction successful.');
             }
-            const updateProductData = await response.json();
-            // console.log(updateProductData);
-            return updateProductData;
+            return await response.json();
         } catch (error) {
             setIsBackendUp(false);
-            showToast("error", "Oops..Something went wrong. Please try again or reach support team.");
+            showToast('error', 'Oops..Something went wrong. Please try again or reach support team.');
         }
-    }
-    const updateTransaction = async (product_id, current_stock, transaction) => {
+    }, [showToast]);
+
+    const updateTransaction = useCallback(async (product_id, current_stock, transaction) => {
         try {
             const updateURL = new URL(`${BASE_PROD_URL}updateTransaction`);
-            updateURL.searchParams.append("product_id", product_id);
-            updateURL.searchParams.append("current_stock", current_stock);
+            updateURL.searchParams.append('product_id', product_id);
+            updateURL.searchParams.append('current_stock', current_stock);
             const response = await fetch(updateURL, {
-                method: "PUT",
+                method: 'PUT',
                 body: JSON.stringify(transaction),
                 headers: {
-                    "Content-type": "application/json; charset=UTF-8"
+                    'Content-type': 'application/json; charset=UTF-8'
                 }
             });
             if (response.status === 200) {
                 fetchTransactions();
-                showToast("success", "Transaction has been edited successfully.");
+                showToast('success', 'Transaction has been edited successfully.');
             }
-            const updatedTransaction = await response.json();
-            // console.log("Updated Transaction info", updatedTransaction);
+            return await response.json();
         } catch (error) {
             setIsBackendUp(false);
-            showToast("error", "Oops..Something went wrong. Please try again or reach support team.");
+            showToast('error', 'Oops..Something went wrong. Please try again or reach support team.');
         }
-    }
+    }, [fetchTransactions, showToast]);
 
-    const deleteTransaction = async (product_id, current_stock, transaction) => {
+    const deleteTransaction = useCallback(async (product_id, current_stock, transaction) => {
         try {
             const deleteURL = new URL(`${BASE_PROD_URL}deleteTransaction`);
-            deleteURL.searchParams.append("product_id", product_id);
-            deleteURL.searchParams.append("current_stock", current_stock);
+            deleteURL.searchParams.append('product_id', product_id);
+            deleteURL.searchParams.append('current_stock', current_stock);
             const response = await fetch(deleteURL, {
-                method: "DELETE",
+                method: 'DELETE',
                 body: JSON.stringify(transaction),
                 headers: {
-                    "Content-type": "application/json; charset=UTF-8"
+                    'Content-type': 'application/json; charset=UTF-8'
                 }
             });
             if (response.status === 200) {
                 fetchTransactions();
-                showToast("success", "Transaction has been deleted successfully.");
-                // console.log("Transaction has been deleted..");
+                showToast('success', 'Transaction has been deleted successfully.');
             }
         } catch (error) {
             setIsBackendUp(false);
-            showToast("error", "Oops..Something went wrong. Please try again or reach support team.");
+            showToast('error', 'Oops..Something went wrong. Please try again or reach support team.');
         }
-    }
+    }, [fetchTransactions, showToast]);
 
-    const fetchTransactions = async () => {
+    const fetchTransactions = useCallback(async () => {
         try {
             const response = await fetch(`${BASE_PROD_URL}getTransactions`);
             const transactionsData = await response.json();
             setTransactions(transactionsData);
         } catch (error) {
             setIsBackendUp(false);
-            showToast("error", "Oops..Something went wrong. Please try again or reach support team.");
+            showToast('error', 'Oops..Something went wrong. Please try again or reach support team.');
         }
-    }
+    }, [showToast]);
 
-    const takePrint = () => {
-        // console.log("Print screen opened.");
+    const takePrint = useCallback(() => {
         window.print();
-    }
-    const logout = () => {
-        sessionStorage.setItem("validUser", false);
+    }, []);
+
+    const logout = useCallback(() => {
+        sessionStorage.setItem('validUser', false);
         navigate('/');
-    }
+    }, [navigate]);
 
     return (
-        <InventaryManagementContext.Provider value={{ toastRef, showToast, products, transactions, fetchProducts, addProducts, updateProducts, fetchTransactions, updateTransaction, deleteTransaction, takePrint, isBackendUp, validateUser, logout }}>
+        <InventaryManagementContext.Provider value={{
+            toastRef,
+            showToast,
+            products,
+            transactions,
+            fetchProducts,
+            addProducts,
+            updateProducts,
+            fetchTransactions,
+            updateTransaction,
+            deleteTransaction,
+            takePrint,
+            logout,
+            isBackendUp,
+            setIsBackendUp,
+            validateUser,
+        }}>
             {children}
             <Toast ref={toastRef} />
         </InventaryManagementContext.Provider>

@@ -1,12 +1,11 @@
 import React, { useEffect, useContext, useState } from 'react';
-import * as XLSX from 'xlsx'; // Import XLSX for Excel export
+import * as XLSX from 'xlsx';
 import { InventaryManagementContext } from './Context/InventaryManagementProvider';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Divider } from 'primereact/divider';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
 import { MultiSelect } from 'primereact/multiselect';
 import ServerDownMessage from './ServerDownMessage';
 
@@ -21,19 +20,20 @@ function CurrentStocks() {
 
     useEffect(() => {
         fetchProducts();
-    }, []);
+    }, [fetchProducts]);
 
     const dialogFuncMap = {
         'filterStocks': setShowFilterOptionsDialog
-    }
+    };
 
-    const onClick = (name, position) => {
+    const onClick = (name) => {
         dialogFuncMap[`${name}`](true);
-    }
+    };
 
     const onHide = (name) => {
         dialogFuncMap[`${name}`](false);
-    }
+    };
+
     const submitFilterStocks = (name) => {
         const filteredStocks = products.filter((product) => {
             if (filterWareHouseCode.length !== 0 && !filterWareHouseCode.some(wareHouseCodeFiltered => product.wareHouseCode === wareHouseCodeFiltered.code)) {
@@ -50,13 +50,15 @@ function CurrentStocks() {
         setFilteredStocks(filteredStocks);
         setFilteredStocksFlag(true);
         onHide(name);
-    }
+    };
+
     const resetFilter = (name) => {
         setFilterWareHouseCode([]);
         setFilterProductGroup([]);
         setFilterProductName([]);
         setFilteredStocksFlag(false);
-    }
+    };
+
     const renderFooter = (name) => {
         return (
             <div>
@@ -65,7 +67,8 @@ function CurrentStocks() {
                 <Button label="Submit" icon="pi pi-check" onClick={() => submitFilterStocks(name)} autoFocus />
             </div>
         );
-    }
+    };
+
     const matchedProductGroups = (product) => {
         let flag = false;
         filterWareHouseCode.forEach(wareHouse => {
@@ -73,7 +76,8 @@ function CurrentStocks() {
                 flag = true;
         });
         return flag;
-    }
+    };
+
     const matchedProductNames = (product) => {
         let flag = false;
         filterWareHouseCode.forEach(wareHouse => {
@@ -81,7 +85,8 @@ function CurrentStocks() {
                 flag = true;
         });
         return flag;
-    }
+    };
+
     const warehouses = [...new Set(products.map(product => product.wareHouseCode))].map(wareHouseCode => { return { name: wareHouseCode, code: wareHouseCode } });
     const productGroups = [...new Set(products.filter(matchedProductGroups).map(product => product.productGroup))].map(productGroup => { return { name: productGroup, code: productGroup } });
     const productNames = [...new Set(products.filter(matchedProductNames).map(product => product.productItem))].map(productItem => { return { name: productItem, code: productItem } });
@@ -93,45 +98,31 @@ function CurrentStocks() {
     const exportToExcel = () => {
         const data = filteredStocksFlag ? filteredStocks : products;
 
-        // Map 'id' field to 'Serial No.' and remove 'id' column
         const dataWithSerialNumber = data.map((item) => ({
-            "Serial No.": item.id, // Map id to Serial No.
-            "WareHouse Code": item.wareHouseCode,
-            "Product Group": item.productGroup,
-            "Product Name": item.productItem,
-            "Current Stock Quantity": item.stockQuantity,
+            'Serial No.': item.id,
+            'WareHouse Code': item.wareHouseCode,
+            'Product Group': item.productGroup,
+            'Product Name': item.productItem,
+            'Current Stock Quantity': item.stockQuantity,
         }));
 
-        // Create worksheet from data with Serial No. column
         const worksheet = XLSX.utils.json_to_sheet(dataWithSerialNumber);
-
-        // Define column widths
         const columnWidths = [
-            { wch: 10 }, // Serial No.
-            { wch: 30 }, // Warehouse Code
-            { wch: 30 }, // Product Group
-            { wch: 30 }, // Product Name
-            { wch: 15 }  // Stock Quantity
+            { wch: 10 },
+            { wch: 30 },
+            { wch: 30 },
+            { wch: 30 },
+            { wch: 15 }
         ];
+        worksheet['!cols'] = columnWidths;
 
-        // Apply column widths to the worksheet
-        worksheet["!cols"] = columnWidths;
-
-        // Create a new workbook and append the worksheet
         const workbook = XLSX.utils.book_new();
-
-        // Format the filename to include today's date
         const today = new Date();
         const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
         XLSX.utils.book_append_sheet(workbook, worksheet, `Current Stocks on ${dateStr}`);
         const fileName = `Current Stocks information on ${dateStr}.xlsx`;
-
-        // Export the workbook as an Excel file
         XLSX.writeFile(workbook, fileName);
     };
-
-
 
     return (
         <div className='current-stocks-container table-fit-content'>
