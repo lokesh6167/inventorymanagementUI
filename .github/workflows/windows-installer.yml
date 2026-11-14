@@ -1,0 +1,99 @@
+name: Windows desktop installer
+
+on:
+  push:
+    branches:
+      - windows-installer-builder
+    paths:
+      - '.github/workflows/windows-installer.yml'
+      - 'electron-main.js'
+      - 'electron-preload.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'public/**'
+      - 'src/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-installer:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out frontend feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: windows-installer-builder
+          path: frontend
+
+      - name: Check out backend source
+        uses: actions/checkout@v4
+        with:
+          repository: lokesh6167/inventarymanagementsystemlatest
+          ref: master
+          path: backend-source
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install backend Java 22
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '22'
+          cache: maven
+          cache-dependency-path: backend-source/pom.xml
+
+      - name: Verify backend desktop configuration and build JAR
+        shell: pwsh
+        run: |
+          $properties = Get-Content backend-source/src/main/resources/application.properties -Raw
+          $expectedUrl = 'jdbc:h2:file:${INVENTORY_DB_DIR:./inventory_data}/inventary_management_system;DB_CLOSE_ON_EXIT=FALSE'
+          if (-not $properties.Contains($expectedUrl)) { throw "Backend datasource URL is not the expected persistent, configurable H2 URL: $expectedUrl" }
+          if ($properties.Contains('AUTO_SERVER=TRUE')) { throw 'AUTO_SERVER=TRUE is not supported and must not be present.' }
+          if (-not $properties.Contains('server.address=127.0.0.1')) { throw 'Backend must bind to 127.0.0.1 for the desktop build.' }
+          ./backend-source/mvnw.cmd -B -f backend-source/pom.xml clean package -DskipTests
+          $builtJar = 'backend-source/target/inventarymanagementsystemlatest-0.0.1-SNAPSHOT.jar'
+          if (-not (Test-Path $builtJar)) { throw "Backend JAR build succeeded but expected JAR is missing: $builtJar" }
+          New-Item -ItemType Directory -Force frontend/desktop-resources/backend | Out-Null
+          Copy-Item $builtJar frontend/desktop-resources/backend/app.jar -Force
+
+      - name: Generate minimal Java 22 Windows runtime
+        shell: pwsh
+        run: |
+          $runtime = 'frontend/desktop-resources/jre'
+          $modules = 'java.base,java.compiler,java.desktop,java.instrument,java.management,java.naming,java.net.http,java.scripting,java.security.jgss,java.sql,java.transaction.xa,java.xml,jdk.crypto.ec,jdk.unsupported,jdk.charsets,jdk.localedata'
+          jlink --add-modules $modules --strip-debug --no-header-files --no-man-pages --output $runtime
+          if (-not (Test-Path "$runtime/bin/java.exe")) { throw 'jlink did not produce the bundled Windows java.exe.' }
+          & "$runtime/bin/java.exe" -version
+          if ($LASTEXITCODE -ne 0) { throw 'The generated Java runtime failed its version check.' }
+          & "$runtime/bin/java.exe" --list-modules
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build React frontend and NSIS installer
+        working-directory: frontend
+        run: npm run dist:win
+
+      - name: Verify installer output
+        shell: pwsh
+        run: |
+          $installers = Get-ChildItem frontend/dist -Filter '*.exe' -File
+          if (-not $installers -or $installers.Count -eq 0) { throw 'electron-builder completed without producing an NSIS .exe installer.' }
+          $installers | ForEach-Object { Write-Host "Installer: $($_.FullName) ($($_.Length) bytes)" }
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: SEV-Grandson-Inventory-Windows-x64
+          path: frontend/dist/*.exe
+          if-no-files-found: error
+          retention-days: 30

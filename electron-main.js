@@ -3,56 +3,81 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const HEALTH_URL = process.env.INVENTORY_HEALTH_URL || 'http://127.0.0.1:8080/inventarymanagement/testServer';
+const HEALTH_URL = 'http://127.0.0.1:8080/inventarymanagement/testServer';
 const BACKEND_START_TIMEOUT_MS = 90000;
 const HEALTH_CHECK_INTERVAL_MS = 1000;
 
 let mainWindow;
 let backendProcess;
+let backendExited = false;
+let backendFailure;
 let shuttingDown = false;
-
-function getBundledResource(...segments) {
-  return app.isPackaged
-    ? path.join(process.resourcesPath, ...segments)
-    : path.join(__dirname, 'desktop-resources', ...segments);
-}
+let recentBackendOutput = '';
 
 function getDatabaseDirectory() {
   const localAppData = process.env.LOCALAPPDATA || path.join(app.getPath('home'), 'AppData', 'Local');
   return path.join(localAppData, 'SEV Grandson Inventory', 'inventory_data');
 }
 
-function startBackend() {
-  const jarPath = getBundledResource('backend', 'app.jar');
-  const developmentJarPath = path.join(__dirname, 'desktop-resources', 'inventarymanagementsystemlatest-0.0.1-SNAPSHOT.jar');
-  const resolvedJarPath = app.isPackaged ? jarPath : (fs.existsSync(jarPath) ? jarPath : developmentJarPath);
-  const bundledJavaPath = getBundledResource('jre', 'bin', process.platform === 'win32' ? 'java.exe' : 'java');
-  const javaPath = fs.existsSync(bundledJavaPath) ? bundledJavaPath : 'java';
-  const databaseDirectory = getDatabaseDirectory();
+function getBackendJarPath() {
+  if (app.isPackaged) return path.join(process.resourcesPath, 'backend', 'app.jar');
 
-  if (!fs.existsSync(resolvedJarPath)) {
-    throw new Error(`Backend JAR not found: ${resolvedJarPath}`);
-  }
+  const packagedLayoutJar = path.join(__dirname, 'desktop-resources', 'backend', 'app.jar');
+  if (fs.existsSync(packagedLayoutJar)) return packagedLayoutJar;
+
+  // Convenience for local development; Windows installer builds always use the
+  // fresh JAR produced by the Windows workflow at backend/app.jar.
+  return path.join(__dirname, 'desktop-resources', 'inventarymanagementsystemlatest-0.0.1-SNAPSHOT.jar');
+}
+
+function appendBackendOutput(stream, data) {
+  const text = data.toString();
+  recentBackendOutput = `${recentBackendOutput}${text}`.slice(-8000);
+  stream(`[backend] ${text.trim()}`);
+}
+
+function startBackend() {
+  const jarPath = getBackendJarPath();
+  const databaseDirectory = getDatabaseDirectory();
+  const bundledJavaPath = path.join(process.resourcesPath, 'jre', 'bin', 'java.exe');
+  const javaPath = app.isPackaged
+    ? bundledJavaPath
+    : (process.env.JAVA_HOME
+      ? path.join(process.env.JAVA_HOME, 'bin', process.platform === 'win32' ? 'java.exe' : 'java')
+      : 'java');
+
+  if (!fs.existsSync(jarPath)) throw new Error(`Backend JAR not found: ${jarPath}`);
   if (app.isPackaged && !fs.existsSync(bundledJavaPath)) {
-    throw new Error(`Bundled Java runtime not found: ${bundledJavaPath}`);
+    throw new Error(`Bundled Windows Java runtime not found: ${bundledJavaPath}`);
   }
 
   fs.mkdirSync(databaseDirectory, { recursive: true });
-  backendProcess = spawn(javaPath, ['-jar', resolvedJarPath], {
+  backendProcess = spawn(javaPath, ['-jar', jarPath], {
     cwd: app.isPackaged ? process.resourcesPath : __dirname,
     env: { ...process.env, INVENTORY_DB_DIR: databaseDirectory },
     windowsHide: true,
     stdio: ['ignore', 'pipe', 'pipe']
   });
 
-  backendProcess.stdout.on('data', (data) => console.log(`[backend] ${data.toString().trim()}`));
-  backendProcess.stderr.on('data', (data) => console.error(`[backend] ${data.toString().trim()}`));
-  backendProcess.on('error', (error) => console.error('[backend] process error:', error));
+  backendProcess.stdout.on('data', (data) => appendBackendOutput(console.log, data));
+  backendProcess.stderr.on('data', (data) => appendBackendOutput(console.error, data));
+  backendProcess.on('error', (error) => {
+    backendFailure = `Could not launch the backend: ${error.message}`;
+  });
   backendProcess.on('exit', (code, signal) => {
-    if (!shuttingDown && (code !== 0 || signal)) {
-      console.error(`[backend] exited unexpectedly (code=${code}, signal=${signal})`);
+    backendExited = true;
+    if (!shuttingDown) {
+      backendFailure = `The backend stopped unexpectedly (exit code ${code ?? 'unknown'}, signal ${signal ?? 'none'}).`;
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        dialog.showErrorBox('Inventory backend stopped', `${backendFailure}\n\n${recentBackendOutput}`);
+        app.quit();
+      }
     }
   });
+}
+
+function backendErrorDetails() {
+  return `${backendFailure || 'The backend process exited before it became ready.'}${recentBackendOutput ? `\n\nRecent backend output:\n${recentBackendOutput}` : ''}`;
 }
 
 async function waitForBackend() {
@@ -60,9 +85,7 @@ async function waitForBackend() {
   let lastError;
 
   while (Date.now() < deadline) {
-    if (!backendProcess || backendProcess.exitCode !== null) {
-      throw new Error('The backend process exited before it became ready. Check the backend startup logs.');
-    }
+    if (backendFailure || backendExited) throw new Error(backendErrorDetails());
 
     try {
       const response = await fetch(HEALTH_URL, { signal: AbortSignal.timeout(2500) });
@@ -75,7 +98,7 @@ async function waitForBackend() {
     await new Promise((resolve) => setTimeout(resolve, HEALTH_CHECK_INTERVAL_MS));
   }
 
-  throw new Error(`Backend did not become ready within ${BACKEND_START_TIMEOUT_MS / 1000} seconds. ${lastError ? lastError.message : ''}`);
+  throw new Error(`Backend did not become ready within ${BACKEND_START_TIMEOUT_MS / 1000} seconds. ${lastError ? lastError.message : ''}${recentBackendOutput ? `\n\nRecent backend output:\n${recentBackendOutput}` : ''}`);
 }
 
 function createWindow() {
@@ -90,12 +113,9 @@ function createWindow() {
     }
   });
 
-  const page = app.isPackaged
-    ? mainWindow.loadFile(path.join(app.getAppPath(), 'build', 'index.html'))
-    : mainWindow.loadURL('http://localhost:3000');
-
-  page.catch((error) => {
-    dialog.showErrorBox('Unable to open Inventory', error.message);
+  const indexPath = path.join(app.getAppPath(), 'build', 'index.html');
+  mainWindow.loadFile(indexPath).catch((error) => {
+    dialog.showErrorBox('Unable to open Inventory', `${error.message}\n\nExpected app page: ${indexPath}`);
     app.quit();
   });
   mainWindow.once('ready-to-show', () => mainWindow.show());
@@ -104,7 +124,7 @@ function createWindow() {
 
 function stopBackend() {
   shuttingDown = true;
-  if (backendProcess && backendProcess.exitCode === null) backendProcess.kill();
+  if (backendProcess && !backendExited) backendProcess.kill();
 }
 
 ipcMain.handle('check-backend', async () => {
@@ -132,5 +152,5 @@ app.whenReady().then(async () => {
 app.on('before-quit', stopBackend);
 app.on('window-all-closed', () => app.quit());
 app.on('activate', () => {
-  if (mainWindow === null && backendProcess && backendProcess.exitCode === null) createWindow();
+  if (mainWindow === null && backendProcess && !backendExited) createWindow();
 });

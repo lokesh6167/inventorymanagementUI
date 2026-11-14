@@ -5,7 +5,7 @@ import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
 import 'primeicons/primeicons.css';
 import './index.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import InventaryManagementProvider from './components/Context/InventaryManagementProvider';
 import CurrentStocks from './components/CurrentStocks';
 import StockInflow from './components/StockInflow';
