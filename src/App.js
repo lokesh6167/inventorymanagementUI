@@ -8,7 +8,7 @@ import { Button } from 'primereact/button';
 function App({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, isBackendUp, toastRef } = useContext(InventaryManagementContext);
+  const { logout, isBackendUp } = useContext(InventaryManagementContext);
   useEffect(() => {
     if (!isBackendUp) {
       navigate('/serverdown');

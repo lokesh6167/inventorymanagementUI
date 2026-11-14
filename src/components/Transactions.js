@@ -40,6 +40,10 @@ function Transactions() {
     useEffect(() => {
         fetchTransactions();
         fetchProducts();
+        // These provider functions are intentionally invoked once when the page mounts.
+        // The provider currently recreates them on render, so adding them as dependencies
+        // would cause repeated requests whenever its context state changes.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -100,7 +104,7 @@ function Transactions() {
             product.productGroup === editingTransaction?.productGroup &&
             product.productItem === editingTransaction?.productItem
         );
-        if ((editingTransaction?.transactionType === "Outflow" && updatingProduct?.stockQuantity + quantityTransferred >= editingTransaction?.transactionQuantity) || (editingTransaction?.transactionType === "Inflow")) {
+        if ((editingTransaction?.transactionType === "Outflow" && updatingProduct?.stockQuantity + quantityTransferred >= editingTransaction?.transactionQuantity) || (editingTransaction?.transactionType === "Inflow" && updatingProduct?.stockQuantity - quantityTransferred + editingTransaction?.transactionQuantity >= 0)) {
             const transactionPayload = { ...editingTransaction, dateOfTransaction: new Date(editingTransaction.dateOfTransaction).toISOString() };
             const currentStock = editingTransaction?.transactionType === "Outflow" ? updatingProduct?.stockQuantity + quantityTransferred - editingTransaction?.transactionQuantity : updatingProduct?.stockQuantity - quantityTransferred + editingTransaction?.transactionQuantity;
             updateTransaction(updatingProduct.id, currentStock, transactionPayload);
