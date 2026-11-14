@@ -69,7 +69,7 @@ java -jar target/inventarymanagementsystemlatest-0.0.1-SNAPSHOT.jar
 
 # You should see:
 # Started Application in X seconds
-# Open browser: http://localhost:8080/inventarymanagement/testServer
+# Open browser: http://127.0.0.1:8080/inventarymanagement/testServer
 # Should show: "Hi I am up.. You can use me.."
 ```
 
@@ -331,7 +331,7 @@ npm run build                          # Production build
 npm run build-win                      # Build Windows installer
 
 # Testing
-http://localhost:8080/inventarymanagement/testServer
+http://127.0.0.1:8080/inventarymanagement/testServer
 http://localhost:3000                  # React dev
 ```
 
