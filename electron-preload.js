@@ -1,4 +1,4 @@
-const { contextBridge, ipcMain } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   checkBackend: () => ipcRenderer.invoke('check-backend'),

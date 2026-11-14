@@ -1,76 +1,88 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
+const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const { spawn } = require('child_process');
-const isDev = require('electron-is-dev');
 const fs = require('fs');
+const path = require('path');
+
+const HEALTH_URL = process.env.INVENTORY_HEALTH_URL || 'http://127.0.0.1:8080/inventarymanagement/testServer';
+const BACKEND_START_TIMEOUT_MS = 90000;
+const HEALTH_CHECK_INTERVAL_MS = 1000;
 
 let mainWindow;
 let backendProcess;
+let shuttingDown = false;
 
-// Function to check if backend is running
-const checkBackendHealth = async () => {
-  try {
-    const response = await fetch('http://localhost:8080/inventarymanagement/testServer');
-    return response.ok;
-  } catch (error) {
-    return false;
+function getBundledResource(...segments) {
+  return app.isPackaged
+    ? path.join(process.resourcesPath, ...segments)
+    : path.join(__dirname, 'desktop-resources', ...segments);
+}
+
+function getDatabaseDirectory() {
+  const localAppData = process.env.LOCALAPPDATA || path.join(app.getPath('home'), 'AppData', 'Local');
+  return path.join(localAppData, 'SEV Grandson Inventory', 'inventory_data');
+}
+
+function startBackend() {
+  const jarPath = getBundledResource('backend', 'app.jar');
+  const developmentJarPath = path.join(__dirname, 'desktop-resources', 'inventarymanagementsystemlatest-0.0.1-SNAPSHOT.jar');
+  const resolvedJarPath = app.isPackaged ? jarPath : (fs.existsSync(jarPath) ? jarPath : developmentJarPath);
+  const bundledJavaPath = getBundledResource('jre', 'bin', process.platform === 'win32' ? 'java.exe' : 'java');
+  const javaPath = fs.existsSync(bundledJavaPath) ? bundledJavaPath : 'java';
+  const databaseDirectory = getDatabaseDirectory();
+
+  if (!fs.existsSync(resolvedJarPath)) {
+    throw new Error(`Backend JAR not found: ${resolvedJarPath}`);
   }
-};
+  if (app.isPackaged && !fs.existsSync(bundledJavaPath)) {
+    throw new Error(`Bundled Java runtime not found: ${bundledJavaPath}`);
+  }
 
-// Function to start Spring Boot backend
-const startBackend = () => {
-  return new Promise((resolve, reject) => {
-    try {
-      const jarPath = path.join(__dirname, isDev ? '../inventarymanagementsystemlatest/target' : './resources/app.jar');
-      
-      // For development, look for JAR in target directory
-      // For production, JAR should be bundled
-      let jar = isDev 
-        ? path.join(__dirname, '../../inventarymanagementsystemlatest/target/inventarymanagementsystemlatest-0.0.1-SNAPSHOT.jar')
-        : path.join(__dirname, 'app.jar');
-      
-      // Check if JAR exists
-      if (!fs.existsSync(jar)) {
-        console.warn('Backend JAR not found at:', jar);
-        resolve(); // Continue anyway, user might have backend running separately
-        return;
-      }
+  fs.mkdirSync(databaseDirectory, { recursive: true });
+  backendProcess = spawn(javaPath, ['-jar', resolvedJarPath], {
+    cwd: app.isPackaged ? process.resourcesPath : __dirname,
+    env: { ...process.env, INVENTORY_DB_DIR: databaseDirectory },
+    windowsHide: true,
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
 
-      console.log('Starting backend from:', jar);
-      backendProcess = spawn('java', ['-jar', jar], {
-        detached: false,
-        stdio: 'pipe'
-      });
-
-      backendProcess.stdout.on('data', (data) => {
-        console.log(`[Backend]: ${data}`);
-        if (data.toString().includes('Started') || data.toString().includes('Tomcat started')) {
-          resolve();
-        }
-      });
-
-      backendProcess.stderr.on('data', (data) => {
-        console.error(`[Backend Error]: ${data}`);
-      });
-
-      backendProcess.on('error', (err) => {
-        console.error('Failed to start backend:', err);
-        resolve(); // Continue anyway
-      });
-
-      // Timeout after 15 seconds
-      setTimeout(() => resolve(), 15000);
-    } catch (error) {
-      console.error('Error starting backend:', error);
-      resolve(); // Continue anyway
+  backendProcess.stdout.on('data', (data) => console.log(`[backend] ${data.toString().trim()}`));
+  backendProcess.stderr.on('data', (data) => console.error(`[backend] ${data.toString().trim()}`));
+  backendProcess.on('error', (error) => console.error('[backend] process error:', error));
+  backendProcess.on('exit', (code, signal) => {
+    if (!shuttingDown && (code !== 0 || signal)) {
+      console.error(`[backend] exited unexpectedly (code=${code}, signal=${signal})`);
     }
   });
-};
+}
 
-const createWindow = () => {
+async function waitForBackend() {
+  const deadline = Date.now() + BACKEND_START_TIMEOUT_MS;
+  let lastError;
+
+  while (Date.now() < deadline) {
+    if (!backendProcess || backendProcess.exitCode !== null) {
+      throw new Error('The backend process exited before it became ready. Check the backend startup logs.');
+    }
+
+    try {
+      const response = await fetch(HEALTH_URL, { signal: AbortSignal.timeout(2500) });
+      if (response.ok) return;
+      lastError = new Error(`Health endpoint returned HTTP ${response.status}: ${HEALTH_URL}`);
+    } catch (error) {
+      lastError = error;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, HEALTH_CHECK_INTERVAL_MS));
+  }
+
+  throw new Error(`Backend did not become ready within ${BACKEND_START_TIMEOUT_MS / 1000} seconds. ${lastError ? lastError.message : ''}`);
+}
+
+function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, 'electron-preload.js'),
       nodeIntegration: false,
@@ -78,55 +90,47 @@ const createWindow = () => {
     }
   });
 
-  const startUrl = isDev
-    ? 'http://localhost:3000'
-    : `file://${path.join(__dirname, '../build/index.html')}`;
+  const page = app.isPackaged
+    ? mainWindow.loadFile(path.join(app.getAppPath(), 'build', 'index.html'))
+    : mainWindow.loadURL('http://localhost:3000');
 
-  mainWindow.loadURL(startUrl);
-
-  if (isDev) {
-    mainWindow.webContents.openDevTools();
-  }
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
+  page.catch((error) => {
+    dialog.showErrorBox('Unable to open Inventory', error.message);
+    app.quit();
   });
-};
+  mainWindow.once('ready-to-show', () => mainWindow.show());
+  mainWindow.on('closed', () => { mainWindow = null; });
+}
 
-app.on('ready', async () => {
-  console.log('App starting...');
-  
-  // Start backend before showing window
-  await startBackend();
-  
-  // Wait a bit for backend to initialize
-  await new Promise(resolve => setTimeout(resolve, 3000));
-  
-  createWindow();
-});
+function stopBackend() {
+  shuttingDown = true;
+  if (backendProcess && backendProcess.exitCode === null) backendProcess.kill();
+}
 
-app.on('window-all-closed', () => {
-  // Kill backend process on app exit
-  if (backendProcess) {
-    backendProcess.kill();
+ipcMain.handle('check-backend', async () => {
+  try {
+    const response = await fetch(HEALTH_URL, { signal: AbortSignal.timeout(2500) });
+    return response.ok;
+  } catch {
+    return false;
   }
-  
-  if (process.platform !== 'darwin') {
+});
+ipcMain.handle('get-app-version', () => app.getVersion());
+
+app.whenReady().then(async () => {
+  try {
+    startBackend();
+    await waitForBackend();
+    createWindow();
+  } catch (error) {
+    stopBackend();
+    dialog.showErrorBox('Inventory could not start', `${error.message}\n\nDatabase folder: ${getDatabaseDirectory()}`);
     app.quit();
   }
 });
 
+app.on('before-quit', stopBackend);
+app.on('window-all-closed', () => app.quit());
 app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow();
-  }
-});
-
-// IPC handlers for frontend communication
-ipcMain.handle('check-backend', async () => {
-  return await checkBackendHealth();
-});
-
-ipcMain.handle('get-app-version', () => {
-  return app.getVersion();
+  if (mainWindow === null && backendProcess && backendProcess.exitCode === null) createWindow();
 });
